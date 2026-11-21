@@ -1,0 +1,32 @@
+# Multi-stage Dockerfile for NestJS Backend
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+
+COPY pnpm-lock.yaml* pnpm-workspace.yaml package.json ./
+COPY packages/ ./packages/
+COPY apps/backend/ ./apps/backend/
+
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter @dcmp/backend run build
+
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/packages/ ./packages/
+COPY --from=builder /app/apps/backend/package.json ./apps/backend/
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+
+RUN pnpm install --prod --frozen-lockfile
+
+EXPOSE 4000
+
+CMD ["node", "apps/backend/dist/main.js"]

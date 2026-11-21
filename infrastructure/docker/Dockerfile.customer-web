@@ -1,0 +1,28 @@
+# Multi-stage Dockerfile for Next.js Customer Web
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+
+COPY pnpm-lock.yaml* pnpm-workspace.yaml package.json ./
+COPY packages/ ./packages/
+COPY apps/customer-web/ ./apps/customer-web/
+
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter @dcmp/customer-web run build
+
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+COPY --from=builder /app/apps/customer-web/.next/standalone ./
+COPY --from=builder /app/apps/customer-web/.next/static ./apps/customer-web/.next/static
+COPY --from=builder /app/apps/customer-web/public ./apps/customer-web/public
+
+EXPOSE 3000
+
+CMD ["node", "apps/customer-web/server.js"]

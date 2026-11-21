@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+.next
+out
+coverage
+*.tsbuildinfo
+.pnpm-store
+apps/mobile-app
+docs/*.docx
+docs/*.png
+docs/*.yaml

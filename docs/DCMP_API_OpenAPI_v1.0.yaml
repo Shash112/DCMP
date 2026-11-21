@@ -1,0 +1,2523 @@
+openapi: 3.1.0
+info:
+  title: DCMP API
+  version: 1.0.0
+  description: API contract baseline for the Digital Checklist Management Platform
+    (DCMP). Multi-tenant SaaS API. All timestamps are ISO 8601 UTC unless an endpoint
+    explicitly documents a tenant-local scheduling value.
+servers:
+- url: https://api.yourproduct.com/api/v1
+  description: Production (replace with deployed API host)
+tags:
+- name: Authentication
+- name: Organization
+- name: Users & Access
+- name: Checklists
+- name: Assignments
+- name: Inspections
+- name: Evidence
+- name: Issues
+- name: Mobile Sync
+- name: Licensing
+- name: Platform Administration
+security:
+- bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: Authenticate a user
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security: []
+  /auth/refresh:
+    post:
+      tags:
+      - Authentication
+      summary: Rotate refresh token
+      operationId: refresh
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Tokens rotated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security: []
+  /auth/logout:
+    post:
+      tags:
+      - Authentication
+      summary: Revoke current refresh-token session
+      operationId: logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /auth/me:
+    get:
+      tags:
+      - Authentication
+      summary: Get authenticated user and organization context
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /auth/forgot-password:
+    post:
+      tags:
+      - Authentication
+      summary: Request password reset
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security: []
+  /auth/reset-password:
+    post:
+      tags:
+      - Authentication
+      summary: Reset password using one-time token
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security: []
+  /organizations/current:
+    get:
+      tags:
+      - Organization
+      summary: Get current organization profile
+      operationId: getCurrentOrganization
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /organizations/branding:
+    get:
+      tags:
+      - Organization
+      summary: Get current tenant branding configuration
+      operationId: getOrganizationBranding
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /locations:
+    get:
+      tags:
+      - Organization
+      summary: List organization locations
+      operationId: listLocations
+      parameters: &id001
+      - &id002
+        name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - &id003
+        name: pageSize
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - &id004
+        name: sortBy
+        in: query
+        schema:
+          type: string
+      - &id005
+        name: sortOrder
+        in: query
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    post:
+      tags:
+      - Organization
+      summary: Create location
+      operationId: createLocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /departments:
+    get:
+      tags:
+      - Organization
+      summary: List departments
+      operationId: listDepartments
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    post:
+      tags:
+      - Organization
+      summary: Create department
+      operationId: createDepartment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentCreateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /users:
+    get:
+      tags:
+      - Users & Access
+      summary: List users in current organization
+      operationId: listUsers
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    post:
+      tags:
+      - Users & Access
+      summary: Create organization user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /users/{userId}:
+    get:
+      tags:
+      - Users & Access
+      summary: Get user
+      operationId: getUser
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    patch:
+      tags:
+      - Users & Access
+      summary: Update user
+      operationId: updateUser
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /roles:
+    get:
+      tags:
+      - Users & Access
+      summary: List roles and permissions
+      operationId: listRoles
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /checklists:
+    get:
+      tags:
+      - Checklists
+      summary: List checklist templates
+      operationId: listChecklists
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    post:
+      tags:
+      - Checklists
+      summary: Create checklist draft
+      operationId: createChecklist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistCreateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /checklists/{checklistId}:
+    get:
+      tags:
+      - Checklists
+      summary: Get checklist and current draft/published version
+      operationId: getChecklist
+      parameters:
+      - name: checklistId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    patch:
+      tags:
+      - Checklists
+      summary: Update checklist draft
+      operationId: updateChecklist
+      parameters:
+      - name: checklistId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistUpdateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /checklists/{checklistId}/publish:
+    post:
+      tags:
+      - Checklists
+      summary: Publish a new immutable checklist version
+      operationId: publishChecklist
+      description: Publishing creates a new version. Existing inspection instances
+        retain the version/snapshot they were created against.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishChecklistRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /checklists/{checklistId}/versions:
+    get:
+      tags:
+      - Checklists
+      summary: List checklist versions
+      operationId: listChecklistVersions
+      parameters:
+      - name: checklistId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /checklists/{checklistId}/duplicate:
+    post:
+      tags:
+      - Checklists
+      summary: Duplicate a checklist
+      operationId: duplicateChecklist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DuplicateChecklistRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /checklists/{checklistId}/archive:
+    post:
+      tags:
+      - Checklists
+      summary: Archive checklist
+      operationId: archiveChecklist
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /assignments:
+    get:
+      tags:
+      - Assignments
+      summary: List assignments visible to current user
+      operationId: listAssignments
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    post:
+      tags:
+      - Assignments
+      summary: Create assignment
+      operationId: createAssignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentCreateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /schedules:
+    get:
+      tags:
+      - Assignments
+      summary: List recurring schedules
+      operationId: listSchedules
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    post:
+      tags:
+      - Assignments
+      summary: Create recurring schedule
+      operationId: createSchedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleCreateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /inspections:
+    get:
+      tags:
+      - Inspections
+      summary: List inspections
+      operationId: listInspections
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    post:
+      tags:
+      - Inspections
+      summary: Create or start inspection instance
+      operationId: createInspection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InspectionCreateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /inspections/{inspectionId}:
+    get:
+      tags:
+      - Inspections
+      summary: Get inspection details and responses
+      operationId: getInspection
+      parameters:
+      - name: inspectionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /inspections/{inspectionId}/draft:
+    put:
+      tags:
+      - Inspections
+      summary: Save inspection draft
+      operationId: saveInspectionDraft
+      description: Draft writes must be idempotent when an Idempotency-Key is supplied.
+        Validate question IDs against the pinned checklist version.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InspectionDraftRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /inspections/{inspectionId}/submit:
+    post:
+      tags:
+      - Inspections
+      summary: Submit inspection
+      operationId: submitInspection
+      description: 'Submission is transactional: persist answers, status transition,
+        audit event and any failure-triggered issue creation.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InspectionSubmitRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /inspections/{inspectionId}/approve:
+    post:
+      tags:
+      - Inspections
+      summary: Approve submitted inspection
+      operationId: approveInspection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InspectionDecisionRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /inspections/{inspectionId}/reject:
+    post:
+      tags:
+      - Inspections
+      summary: Reject inspection and request correction
+      operationId: rejectInspection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InspectionDecisionRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /inspections/{inspectionId}/history:
+    get:
+      tags:
+      - Inspections
+      summary: Get inspection status and change history
+      operationId: getInspectionHistory
+      parameters:
+      - name: inspectionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - *id002
+      - *id003
+      - *id004
+      - *id005
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /evidence/upload-url:
+    post:
+      tags:
+      - Evidence
+      summary: Create short-lived private object upload URL
+      operationId: createEvidenceUploadUrl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvidenceUploadRequest'
+      responses:
+        '200':
+          description: Upload URL created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadUrlResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /evidence/complete:
+    post:
+      tags:
+      - Evidence
+      summary: Confirm evidence upload and attach metadata
+      operationId: completeEvidenceUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvidenceCompleteRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /evidence/{evidenceId}:
+    get:
+      tags:
+      - Evidence
+      summary: Get evidence metadata and authorized download URL
+      operationId: getEvidence
+      parameters:
+      - name: evidenceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /issues:
+    get:
+      tags:
+      - Issues
+      summary: List corrective-action issues
+      operationId: listIssues
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    post:
+      tags:
+      - Issues
+      summary: Create issue
+      operationId: createIssue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueCreateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /issues/{issueId}/assign:
+    post:
+      tags:
+      - Issues
+      summary: Assign issue owner
+      operationId: assignIssue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueAssignRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /issues/{issueId}/resolve:
+    post:
+      tags:
+      - Issues
+      summary: Submit resolution for verification
+      operationId: resolveIssue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueResolveRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /issues/{issueId}/close:
+    post:
+      tags:
+      - Issues
+      summary: Close verified issue
+      operationId: closeIssue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueCloseRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /issues/{issueId}/reopen:
+    post:
+      tags:
+      - Issues
+      summary: Reopen issue
+      operationId: reopenIssue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueReopenRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /mobile/bootstrap:
+    get:
+      tags:
+      - Mobile Sync
+      summary: Fetch mobile configuration, branding and entitlements
+      operationId: mobileBootstrap
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /mobile/assignments/sync:
+    get:
+      tags:
+      - Mobile Sync
+      summary: Download assigned work and required template versions
+      operationId: syncAssignments
+      parameters:
+      - name: since
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: cursor
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /mobile/sync/inspections:
+    post:
+      tags:
+      - Mobile Sync
+      summary: Upload queued inspection drafts/submissions
+      operationId: syncInspections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InspectionSyncRequest'
+      responses:
+        '200':
+          description: Sync results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /mobile/sync/evidence:
+    post:
+      tags:
+      - Mobile Sync
+      summary: Register uploaded evidence metadata
+      operationId: syncEvidence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvidenceSyncRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /mobile/sync/status:
+    get:
+      tags:
+      - Mobile Sync
+      summary: Get pending sync status
+      operationId: getSyncStatus
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /mobile/releases/latest:
+    get:
+      tags:
+      - Mobile Sync
+      summary: Get latest compatible mobile release and update policy
+      operationId: getLatestMobileRelease
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /licensing/activate:
+    post:
+      tags:
+      - Licensing
+      summary: Activate an installation using customer license key
+      operationId: activateLicense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivateRequest'
+      responses:
+        '200':
+          description: Activation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      security: []
+  /licensing/validate:
+    post:
+      tags:
+      - Licensing
+      summary: Validate activation and refresh entitlement snapshot
+      operationId: validateLicense
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /licensing/deactivate:
+    post:
+      tags:
+      - Licensing
+      summary: Deactivate this installation
+      operationId: deactivateLicense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseDeactivateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /licensing/status:
+    get:
+      tags:
+      - Licensing
+      summary: Get current installation license status
+      operationId: getLicenseStatus
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /licensing/entitlements:
+    get:
+      tags:
+      - Licensing
+      summary: Get effective feature and quota entitlements
+      operationId: getEntitlements
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /platform/organizations:
+    get:
+      tags:
+      - Platform Administration
+      summary: List all customer organizations
+      operationId: platformListOrganizations
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    post:
+      tags:
+      - Platform Administration
+      summary: Create customer organization and initial owner
+      operationId: platformCreateOrganization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformOrganizationCreateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /platform/licenses:
+    get:
+      tags:
+      - Platform Administration
+      summary: List platform licenses
+      operationId: platformListLicenses
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+    post:
+      tags:
+      - Platform Administration
+      summary: Create or issue customer license
+      operationId: platformCreateLicense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformLicenseCreateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /platform/licenses/{licenseId}:
+    patch:
+      tags:
+      - Platform Administration
+      summary: Update license status, plan or limits
+      operationId: platformUpdateLicense
+      parameters:
+      - name: licenseId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformLicenseUpdateRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /platform/devices:
+    get:
+      tags:
+      - Platform Administration
+      summary: List activations and devices
+      operationId: platformListDevices
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+  /platform/releases:
+    get:
+      tags:
+      - Platform Administration
+      summary: List mobile application releases
+      operationId: platformListReleases
+      parameters: *id001
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessEnvelope'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequest:
+      description: Malformed request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    Unauthorized:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    Forbidden:
+      description: Authenticated but not authorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    NotFound:
+      description: Resource not found in caller's authorized scope
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    Conflict:
+      description: State conflict or idempotency conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    ServerError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+  schemas:
+    SuccessEnvelope:
+      type: object
+      properties:
+        success:
+          type: boolean
+          const: true
+        data: {}
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+      required:
+      - success
+      - data
+    ResponseMeta:
+      type: object
+      properties:
+        requestId:
+          type: string
+        timestamp: &id007
+          type: string
+          format: date-time
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        nextCursor:
+          type: string
+    ErrorEnvelope:
+      type: object
+      properties:
+        success:
+          type: boolean
+          const: false
+        error:
+          $ref: '#/components/schemas/ApiError'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+      required:
+      - success
+      - error
+    ApiError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        requestId:
+          type: string
+      required:
+      - code
+      - message
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+          const: Bearer
+        expiresIn:
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+        organization:
+          $ref: '#/components/schemas/OrganizationSummary'
+      required:
+      - accessToken
+      - refreshToken
+      - tokenType
+      - expiresIn
+      - user
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+        deviceId:
+          type: string
+        deviceName:
+          type: string
+      required:
+      - email
+      - password
+    RefreshRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+        deviceId:
+          type: string
+      required:
+      - refreshToken
+    LogoutRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+      required:
+      - refreshToken
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    ResetPasswordRequest:
+      type: object
+      properties:
+        token:
+          type: string
+        newPassword:
+          type: string
+          minLength: 12
+      required:
+      - token
+      - newPassword
+    User:
+      type: object
+      properties:
+        id: &id006
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - INVITED
+          - SUSPENDED
+        roles:
+          type: array
+          items:
+            type: string
+      required:
+      - id
+      - email
+    OrganizationSummary:
+      type: object
+      properties:
+        id: *id006
+        name:
+          type: string
+        slug:
+          type: string
+        timeZone:
+          type: string
+    Organization:
+      type: object
+      properties:
+        id: *id006
+        name:
+          type: string
+        legalName:
+          type: string
+        slug:
+          type: string
+        timeZone:
+          type: string
+        defaultLanguage:
+          type: string
+        status:
+          type: string
+        branding:
+          type: object
+          additionalProperties: true
+    LocationCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        address:
+          type: object
+          additionalProperties: true
+        timeZone:
+          type: string
+      required:
+      - name
+    DepartmentCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        locationId: *id006
+      required:
+      - name
+    UserCreateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        roleIds:
+          type: array
+          items: *id006
+        departmentId: *id006
+        locationIds:
+          type: array
+          items: *id006
+      required:
+      - email
+      - firstName
+    UserUpdateRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+        roleIds:
+          type: array
+          items: *id006
+    ChecklistCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        categoryId: *id006
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChecklistSectionInput'
+      required:
+      - name
+      - sections
+    ChecklistUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        categoryId: *id006
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChecklistSectionInput'
+    ChecklistSectionInput:
+      type: object
+      properties:
+        clientId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        sortOrder:
+          type: integer
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionInput'
+      required:
+      - title
+      - questions
+    QuestionInput:
+      type: object
+      properties:
+        clientId:
+          type: string
+        title:
+          type: string
+        helpText:
+          type: string
+        type:
+          type: string
+          enum:
+          - YES_NO
+          - PASS_FAIL
+          - SINGLE_CHOICE
+          - MULTI_CHOICE
+          - TEXT
+          - INTEGER
+          - DECIMAL
+          - DATE
+          - TIME
+          - DATETIME
+          - PHOTO
+          - VIDEO
+          - FILE
+          - SIGNATURE
+          - BARCODE
+          - QR_CODE
+          - GPS
+          - RATING
+          - HEADING
+        required:
+          type: boolean
+        config:
+          type: object
+          additionalProperties: true
+        conditions:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        sortOrder:
+          type: integer
+        weight:
+          type: number
+      required:
+      - title
+      - type
+    PublishChecklistRequest:
+      type: object
+      properties:
+        changeSummary:
+          type: string
+        effectiveAt: *id007
+    DuplicateChecklistRequest:
+      type: object
+      properties:
+        name:
+          type: string
+    AssignmentCreateRequest:
+      type: object
+      properties:
+        checklistVersionId: *id006
+        title:
+          type: string
+        assigneeUserIds:
+          type: array
+          items: *id006
+        teamIds:
+          type: array
+          items: *id006
+        locationId: *id006
+        assetId: *id006
+        dueAt: *id007
+        priority:
+          type: string
+          enum:
+          - LOW
+          - NORMAL
+          - HIGH
+          - URGENT
+        requiresApproval:
+          type: boolean
+      required:
+      - checklistVersionId
+      - title
+    ScheduleCreateRequest:
+      type: object
+      properties:
+        checklistVersionId: *id006
+        name:
+          type: string
+        frequency:
+          type: string
+          enum:
+          - ONCE
+          - DAILY
+          - WEEKLY
+          - MONTHLY
+          - CUSTOM
+          - SHIFT
+        timeZone:
+          type: string
+        startAt: *id007
+        endAt: *id007
+        assigneeUserIds:
+          type: array
+          items: *id006
+        teamIds:
+          type: array
+          items: *id006
+        locationId: *id006
+        rules:
+          type: object
+          additionalProperties: true
+      required:
+      - checklistVersionId
+      - frequency
+      - timeZone
+      - startAt
+    InspectionCreateRequest:
+      type: object
+      properties:
+        assignmentId: *id006
+        checklistVersionId: *id006
+        clientInspectionId: *id006
+      required:
+      - checklistVersionId
+    AnswerInput:
+      type: object
+      properties:
+        questionId: *id006
+        value: {}
+        notes:
+          type: string
+        clientUpdatedAt: *id007
+        evidenceIds:
+          type: array
+          items: *id006
+      required:
+      - questionId
+    InspectionDraftRequest:
+      type: object
+      properties:
+        clientMutationId: *id006
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnswerInput'
+        startedAt: *id007
+        deviceUpdatedAt: *id007
+      required:
+      - clientMutationId
+      - answers
+    InspectionSubmitRequest:
+      type: object
+      properties:
+        clientMutationId: *id006
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnswerInput'
+        submittedAt: *id007
+        deviceId:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+      required:
+      - clientMutationId
+      - answers
+    InspectionDecisionRequest:
+      type: object
+      properties:
+        comment:
+          type: string
+        decidedAt: *id007
+    EvidenceUploadRequest:
+      type: object
+      properties:
+        inspectionId: *id006
+        questionId: *id006
+        fileName:
+          type: string
+        contentType:
+          type: string
+        sizeBytes:
+          type: integer
+          minimum: 1
+        sha256:
+          type: string
+      required:
+      - inspectionId
+      - fileName
+      - contentType
+      - sizeBytes
+    UploadUrlResponse:
+      type: object
+      properties:
+        uploadId: *id006
+        uploadUrl:
+          type: string
+          format: uri
+        method:
+          type: string
+          const: PUT
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        expiresAt: *id007
+      required:
+      - uploadId
+      - uploadUrl
+      - method
+      - expiresAt
+    EvidenceCompleteRequest:
+      type: object
+      properties:
+        uploadId: *id006
+        objectKey:
+          type: string
+        sha256:
+          type: string
+      required:
+      - uploadId
+    IssueCreateRequest:
+      type: object
+      properties:
+        inspectionId: *id006
+        questionId: *id006
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+          - CRITICAL
+        dueAt: *id007
+        assigneeUserId: *id006
+      required:
+      - title
+      - severity
+    IssueAssignRequest:
+      type: object
+      properties:
+        assigneeUserId: *id006
+        comment:
+          type: string
+      required:
+      - assigneeUserId
+    IssueResolveRequest:
+      type: object
+      properties:
+        resolutionNotes:
+          type: string
+        evidenceIds:
+          type: array
+          items: *id006
+      required:
+      - resolutionNotes
+    IssueCloseRequest:
+      type: object
+      properties:
+        verificationNotes:
+          type: string
+    IssueReopenRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+      required:
+      - reason
+    InspectionSyncRequest:
+      type: object
+      properties:
+        deviceId:
+          type: string
+        batchId: *id006
+        inspections:
+          type: array
+          items:
+            type: object
+            properties:
+              clientInspectionId: *id006
+              inspectionId: *id006
+              checklistVersionId: *id006
+              clientMutationId: *id006
+              status:
+                type: string
+                enum:
+                - DRAFT
+                - SUBMITTED
+              answers:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnswerInput'
+              deviceCreatedAt: *id007
+              deviceUpdatedAt: *id007
+            required:
+            - clientInspectionId
+            - checklistVersionId
+            - clientMutationId
+            - status
+            - answers
+      required:
+      - deviceId
+      - batchId
+      - inspections
+    SyncResponse:
+      type: object
+      properties:
+        batchId: *id006
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              clientInspectionId: *id006
+              serverInspectionId: *id006
+              status:
+                type: string
+                enum:
+                - ACCEPTED
+                - DUPLICATE
+                - CONFLICT
+                - REJECTED
+              serverVersion:
+                type: integer
+              error:
+                $ref: '#/components/schemas/ApiError'
+        serverTime: *id007
+      required:
+      - batchId
+      - results
+      - serverTime
+    EvidenceSyncRequest:
+      type: object
+      properties:
+        deviceId:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      required:
+      - deviceId
+      - items
+    LicenseActivateRequest:
+      type: object
+      properties:
+        licenseKey:
+          type: string
+        installationId:
+          type: string
+        deviceName:
+          type: string
+        platform:
+          type: string
+          enum:
+          - ANDROID
+          - IOS
+        appVersion:
+          type: string
+        osVersion:
+          type: string
+      required:
+      - licenseKey
+      - installationId
+      - platform
+      - appVersion
+    ActivationResponse:
+      type: object
+      properties:
+        activationId: *id006
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - GRACE
+          - EXPIRED
+          - SUSPENDED
+          - REVOKED
+        activationToken:
+          type: string
+        validatedAt: *id007
+        nextValidationAt: *id007
+        offlineGraceUntil: *id007
+        organization:
+          $ref: '#/components/schemas/OrganizationSummary'
+        entitlements:
+          type: object
+          additionalProperties: true
+      required:
+      - status
+      - validatedAt
+      - entitlements
+    LicenseDeactivateRequest:
+      type: object
+      properties:
+        installationId:
+          type: string
+        reason:
+          type: string
+      required:
+      - installationId
+    PlatformOrganizationCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        ownerEmail:
+          type: string
+          format: email
+        planId: *id006
+        timeZone:
+          type: string
+      required:
+      - name
+      - slug
+      - ownerEmail
+    PlatformLicenseCreateRequest:
+      type: object
+      properties:
+        organizationId: *id006
+        planId: *id006
+        licenseType:
+          type: string
+          enum:
+          - TRIAL
+          - MONTHLY
+          - ANNUAL
+          - LIFETIME
+          - ENTERPRISE
+        startsAt: *id007
+        endsAt: *id007
+        maxUsers:
+          type: integer
+        maxDevices:
+          type: integer
+        maxLocations:
+          type: integer
+        storageQuotaBytes:
+          type: integer
+        entitlements:
+          type: object
+          additionalProperties: true
+      required:
+      - organizationId
+      - licenseType
+    PlatformLicenseUpdateRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - REVOKED
+        planId: *id006
+        endsAt: *id007
+        maxUsers:
+          type: integer
+        maxDevices:
+          type: integer
+        maxLocations:
+          type: integer
+        entitlements:
+          type: object
+          additionalProperties: true
