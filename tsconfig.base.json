@@ -24,18 +24,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "@dcmp/shared-types": ["packages/shared-types/src/index.ts"],
-      "@dcmp/shared-types/*": ["packages/shared-types/src/*"],
-      "@dcmp/api-contracts": ["packages/api-contracts/src/index.ts"],
-      "@dcmp/api-contracts/*": ["packages/api-contracts/src/*"],
-      "@dcmp/validation-schemas": ["packages/validation-schemas/src/index.ts"],
-      "@dcmp/validation-schemas/*": ["packages/validation-schemas/src/*"],
-      "@dcmp/design-tokens": ["packages/design-tokens/src/index.ts"],
-      "@dcmp/design-tokens/*": ["packages/design-tokens/src/*"]
-    }
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": ["node_modules", "dist", "build", ".next", "apps/mobile-app"]
 }
