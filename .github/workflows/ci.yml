@@ -33,13 +33,15 @@ jobs:
       - name: Run ESLint
         run: pnpm run lint
 
+      - name: Build Shared Workspace Packages
+        run: pnpm run build:packages
+
       - name: Run TypeScript Checks
         run: pnpm run typecheck
 
   build-node-apps:
     name: Build NestJS & Next.js Apps
     runs-on: ubuntu-latest
-    needs: lint-and-typecheck
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -54,11 +56,14 @@ jobs:
         with:
           version: 9.15.9
 
-      - name: Install Dependencies
+      - name: Install Monorepo Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build All Packages & Web/Backend Apps
-        run: pnpm run build
+      - name: Build Shared Workspace Packages
+        run: pnpm run build:packages
+
+      - name: Build Applications (NestJS & Next.js)
+        run: pnpm run build:apps
 
   test-flutter-mobile:
     name: Analyze & Test Flutter Mobile App
