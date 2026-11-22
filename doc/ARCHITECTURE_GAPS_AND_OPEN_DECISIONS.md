@@ -115,6 +115,21 @@ Per project engineering rules, important architectural decisions and conflicts m
 
 ---
 
+### GAP-009: Workstation Toolchain Completion for Android Build and Local Container Testing
+
+- **Context:**
+  - Full end-to-end local validation on Windows requires Docker Desktop for container services (PostgreSQL 16, Redis 7) and a working Java JDK 17 / Android Virtual Device for Flutter mobile execution.
+  - During Phase 1.1 verification, Node.js (v26.13.0), pnpm (v9.15.9), Git (v2.56.0), and Flutter SDK (v3.38.6) were verified operational. However, the host lacks Docker Desktop, JDK 17 binaries (`bin/java.exe`), and an active Android Virtual Device (AVD).
+- **Impact:**
+  - Monorepo package builds, typecheck, linting, Next.js static builds, NestJS server startup, and Flutter unit/widget tests all pass successfully.
+  - Container spin-up and mobile emulator runtime launch cannot execute until the host developer installs Docker Desktop and provisions an Android Virtual Device.
+- **Mitigation:**
+  - Detailed remediation steps and winget commands provided in `doc/LOCAL_DEVELOPMENT_SETUP.md`.
+  - CI pipeline executes containerized and isolated Linux checks independently.
+- **Decision Status:** Recorded as environment operational requirements for developer onboarding.
+
+---
+
 ## 3. Summary of Approvals Required
 
 | Decision ID | Summary                                       | Recommended Option                                            | Approver                       |
@@ -123,3 +138,4 @@ Per project engineering rules, important architectural decisions and conflicts m
 | GAP-004     | Flutter Local SQLite Driver                   | Drift (`drift_flutter`)                                       | Mobile Lead                    |
 | GAP-005     | Next.js Web Token Persistence                 | HTTP-only SameSite cookies via Next.js Route Handlers         | Web Lead / Security Architect  |
 | GAP-008     | Outbox table vs Direct BullMQ queueing        | Direct BullMQ for MVP; Outbox table for audit-critical events | Backend Lead                   |
+| GAP-009     | Windows Workstation Toolchain Requirements    | Adopt winget standardized provisioning in setup script        | DevOps Lead                    |

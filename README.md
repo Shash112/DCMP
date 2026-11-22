@@ -46,10 +46,11 @@ The platform consists of four primary applications and four shared packages orga
 
 ### 3.1 Prerequisites
 
-- **Node.js** `>= 20.0.0`
+- **Node.js** `>= 20.0.0` (LTS)
 - **pnpm** `>= 9.0.0` (`npm install -g pnpm@9`)
-- **Docker & Docker Compose** (for PostgreSQL 16 & Redis 7)
-- **Flutter SDK** `>= 3.38.0` (for mobile app development)
+- **Docker & Docker Compose** (for PostgreSQL 16 & Redis 7 containers)
+- **Flutter SDK** `>= 3.38.0` & **Dart** `>= 3.10.0` (for mobile app development)
+- **Java JDK 17** (LTS) & **Android SDK** (API Level 34+) for Android mobile builds
 
 ### 3.2 Environment Setup
 
@@ -151,4 +152,5 @@ All design decisions and architectural specifications are documented under `doc/
 ## 7. Current Project Status
 
 - **Phase 1 (Completed):** Project initialization, monorepo setup, shared package contracts, NestJS modular monolith foundation, Next.js web portals, Flutter mobile baseline, Docker Compose dev environment, and documentation indexing.
+- **Phase 1.1 (Completed):** GitHub Actions CI workflow modernization (`actions/checkout@v7`, `actions/setup-node@v7`, `actions/setup-java@v6`, `pnpm/action-setup@v6`), environment variable configuration audit (`.env.example`), Windows workstation developer environment audit, and verified local runtime responses for NestJS backend (`/api/v1/health`) and Next.js applications (HTTP 200).
 - **Phase 2 (Next Step):** Database schema modeling with Prisma, PostgreSQL migrations, and Authentication & Tenant Resolution implementation.
