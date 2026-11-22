@@ -47,12 +47,7 @@ describe('Phase 2.1.21 failure recovery', () => {
   let server: ReturnType<INestApplication['getHttpServer']>;
   const cases: Case[] = [];
 
-  function rec(
-    test_id: string,
-    scenario: string,
-    status: Case['status'],
-    detail: string,
-  ) {
+  function rec(test_id: string, scenario: string, status: Case['status'], detail: string) {
     cases.push({ test_id, scenario, status, detail: detail.slice(0, 500) });
     if (status === 'FAILED') assert.fail(`${test_id}: ${detail}`);
   }
@@ -63,12 +58,10 @@ describe('Phase 2.1.21 failure recovery', () => {
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    const { ResponseTransformInterceptor } = await import(
-      '../../../common/interceptors/response.interceptor'
-    );
-    const { GlobalHttpExceptionFilter } = await import(
-      '../../../common/filters/http-exception.filter'
-    );
+    const { ResponseTransformInterceptor } =
+      await import('../../../common/interceptors/response.interceptor');
+    const { GlobalHttpExceptionFilter } =
+      await import('../../../common/filters/http-exception.filter');
     app.useGlobalInterceptors(new ResponseTransformInterceptor());
     app.useGlobalFilters(new GlobalHttpExceptionFilter());
     await app.init();
@@ -95,8 +88,13 @@ describe('Phase 2.1.21 failure recovery', () => {
       join(EVIDENCE, '00_environment.json'),
       JSON.stringify(
         {
-          postgresql: (await pg.pool.query('SELECT version() AS v, inet_server_port() AS port')).rows[0],
-          redis: { host: process.env.REDIS_HOST, port: process.env.REDIS_PORT, db: process.env.REDIS_DB },
+          postgresql: (await pg.pool.query('SELECT version() AS v, inet_server_port() AS port'))
+            .rows[0],
+          redis: {
+            host: process.env.REDIS_HOST,
+            port: process.env.REDIS_PORT,
+            db: process.env.REDIS_DB,
+          },
           kmsConfigured: isKmsIntegrationConfigured(),
           awsProfilePresent: Boolean(process.env.AWS_PROFILE),
           note: 'Live AWS KMS not executed against farmerswing-prod; requires dedicated non-prod keys',
@@ -108,7 +106,10 @@ describe('Phase 2.1.21 failure recovery', () => {
   });
 
   after(async () => {
-    writeFileSync(join(EVIDENCE, 'failure_recovery_cases.json'), JSON.stringify({ cases }, null, 2));
+    writeFileSync(
+      join(EVIDENCE, 'failure_recovery_cases.json'),
+      JSON.stringify({ cases }, null, 2),
+    );
     await new Promise<void>((resolve, reject) =>
       server.close((e: Error | undefined) => (e ? reject(e) : resolve())),
     );
@@ -207,7 +208,12 @@ describe('Phase 2.1.21 failure recovery', () => {
         "local t=redis.call('TIME'); while true do local n=redis.call('TIME'); if (tonumber(n[1])-tonumber(t[1]))>=1 then break end end; return 1",
         0,
       );
-      rec('DB-SEC-REDIS-TIMEOUT', 'command timeout via 1ms client', 'FAILED', 'expected timeout but command succeeded');
+      rec(
+        'DB-SEC-REDIS-TIMEOUT',
+        'command timeout via 1ms client',
+        'FAILED',
+        'expected timeout but command succeeded',
+      );
     } catch (e) {
       const msg = (e as Error).message || String(e);
       if (isTimeout(msg)) {
@@ -285,6 +291,11 @@ describe('Phase 2.1.21 failure recovery', () => {
       );
       return;
     }
-    rec('DB-SEC-KMS-LIVE', 'live KMS', 'NOT_RUN', 'configured but not executed in this harness pass');
+    rec(
+      'DB-SEC-KMS-LIVE',
+      'live KMS',
+      'NOT_RUN',
+      'configured but not executed in this harness pass',
+    );
   });
 });

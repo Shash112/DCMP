@@ -7,39 +7,39 @@ Live non-prod multi-key suites remain green. No AWS mutations. No commit/push.
 
 ## Findings addressed
 
-| ID | Finding | Resolution |
-|----|---------|------------|
-| F1 | `setActiveHmacKeyIdForTest` unguarded | `assertCryptoTestHooksAllowed()` — allowed **only** when `NODE_ENV=test` (2.1.25.1) |
-| F2 | `setActiveMasterKeyIdForTest` / `activeMasterKeyIdForTest` unguarded | Same fail-closed policy |
-| F3 | `rotateForTest` / `retireForTest` on KMS access-token provider | Same fail-closed policy + empty `newKeyId` check |
-| F4 | Concrete KMS providers exported from `AuthModule` | Removed from `exports`; inject via tokens only |
-| F5 | Test methods on production interface | Removed `rotateForTest` / `retireForTest` from `AccessTokenSigningKeyProvider` |
-| F6 | Empty Decrypt `KeyId` skipped allowlist | Fail closed via `assertWrappingKeyAllowed` |
-| F7 | Loose `includes` / `endsWith` matching | Replaced with exact ARN equality or exact UUID (incl. UUID from ARN) |
-| F8–F9 | 2.1.24 tenant-isolation mislabel | Report §7 corrected; FAILCLOSED test title/comments fixed |
+| ID    | Finding                                                              | Resolution                                                                          |
+| ----- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| F1    | `setActiveHmacKeyIdForTest` unguarded                                | `assertCryptoTestHooksAllowed()` — allowed **only** when `NODE_ENV=test` (2.1.25.1) |
+| F2    | `setActiveMasterKeyIdForTest` / `activeMasterKeyIdForTest` unguarded | Same fail-closed policy                                                             |
+| F3    | `rotateForTest` / `retireForTest` on KMS access-token provider       | Same fail-closed policy + empty `newKeyId` check                                    |
+| F4    | Concrete KMS providers exported from `AuthModule`                    | Removed from `exports`; inject via tokens only                                      |
+| F5    | Test methods on production interface                                 | Removed `rotateForTest` / `retireForTest` from `AccessTokenSigningKeyProvider`      |
+| F6    | Empty Decrypt `KeyId` skipped allowlist                              | Fail closed via `assertWrappingKeyAllowed`                                          |
+| F7    | Loose `includes` / `endsWith` matching                               | Replaced with exact ARN equality or exact UUID (incl. UUID from ARN)                |
+| F8–F9 | 2.1.24 tenant-isolation mislabel                                     | Report §7 corrected; FAILCLOSED test title/comments fixed                           |
 
 Local `rotateForTest` / `retireForTest` on `LocalAccessTokenKeyProvider` and `LocalTestKeyProvider` use the same test-only gate.
 
 ## Files changed
 
-| Path | Change |
-|------|--------|
-| `apps/backend/src/modules/auth/crypto/crypto-test-hooks.ts` | **NEW** — production hard-block helper |
-| `apps/backend/src/modules/auth/crypto/kms-wrapping-key-allowlist.ts` | **NEW** — strict KeyId allowlist |
-| `apps/backend/src/modules/auth/crypto/ssa-signing.provider.ts` | Guard on `setActiveHmacKeyIdForTest` |
-| `apps/backend/src/modules/auth/crypto/kms-refresh-envelope.provider.ts` | Guards + strict allowlist on Decrypt |
-| `apps/backend/src/modules/auth/crypto/kms-access-token-key.provider.ts` | Guards on rotate/retire |
-| `apps/backend/src/modules/auth/crypto/local-access-token-key.provider.ts` | Guards on rotate/retire |
-| `apps/backend/src/modules/auth/crypto/local-test-key.provider.ts` | Guard on `rotateForTest` |
-| `apps/backend/src/modules/auth/crypto/access-token-key.provider.ts` | Removed test methods from interface |
-| `apps/backend/src/modules/auth/auth.module.ts` | Stop exporting concrete KMS classes |
-| `apps/backend/src/modules/auth/__tests__/crypto-test-hooks-and-allowlist.spec.ts` | **NEW** unit tests |
-| `apps/backend/src/modules/auth/__tests__/phase-2.1.22-*.spec.ts` | Resolve envelope via `moduleRef.get(..., { strict: false })` |
-| `apps/backend/src/modules/auth/__tests__/phase-2.1.24-*.spec.ts` | Token DI + FAILCLOSED wording |
-| `apps/backend/src/modules/auth/__tests__/multi-key-rotation.unit.spec.ts` | Call concrete rotate/retire (no interface `!`) |
-| `apps/backend/package.json` | Include new unit file in `test:auth:kms-unit` |
-| `doc/PHASE_2_1_24_LIVE_MULTI_KEY_ROTATION_REPORT.md` | Correct §7 tenant wording |
-| `doc/PHASE_2_1_25_KMS_SECURITY_REMEDIATION_REPORT.md` | **NEW** this report |
+| Path                                                                              | Change                                                       |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `apps/backend/src/modules/auth/crypto/crypto-test-hooks.ts`                       | **NEW** — production hard-block helper                       |
+| `apps/backend/src/modules/auth/crypto/kms-wrapping-key-allowlist.ts`              | **NEW** — strict KeyId allowlist                             |
+| `apps/backend/src/modules/auth/crypto/ssa-signing.provider.ts`                    | Guard on `setActiveHmacKeyIdForTest`                         |
+| `apps/backend/src/modules/auth/crypto/kms-refresh-envelope.provider.ts`           | Guards + strict allowlist on Decrypt                         |
+| `apps/backend/src/modules/auth/crypto/kms-access-token-key.provider.ts`           | Guards on rotate/retire                                      |
+| `apps/backend/src/modules/auth/crypto/local-access-token-key.provider.ts`         | Guards on rotate/retire                                      |
+| `apps/backend/src/modules/auth/crypto/local-test-key.provider.ts`                 | Guard on `rotateForTest`                                     |
+| `apps/backend/src/modules/auth/crypto/access-token-key.provider.ts`               | Removed test methods from interface                          |
+| `apps/backend/src/modules/auth/auth.module.ts`                                    | Stop exporting concrete KMS classes                          |
+| `apps/backend/src/modules/auth/__tests__/crypto-test-hooks-and-allowlist.spec.ts` | **NEW** unit tests                                           |
+| `apps/backend/src/modules/auth/__tests__/phase-2.1.22-*.spec.ts`                  | Resolve envelope via `moduleRef.get(..., { strict: false })` |
+| `apps/backend/src/modules/auth/__tests__/phase-2.1.24-*.spec.ts`                  | Token DI + FAILCLOSED wording                                |
+| `apps/backend/src/modules/auth/__tests__/multi-key-rotation.unit.spec.ts`         | Call concrete rotate/retire (no interface `!`)               |
+| `apps/backend/package.json`                                                       | Include new unit file in `test:auth:kms-unit`                |
+| `doc/PHASE_2_1_24_LIVE_MULTI_KEY_ROTATION_REPORT.md`                              | Correct §7 tenant wording                                    |
+| `doc/PHASE_2_1_25_KMS_SECURITY_REMEDIATION_REPORT.md`                             | **NEW** this report                                          |
 
 ## Crypto test-hook guard behavior
 
@@ -80,31 +80,31 @@ if (process.env.NODE_ENV !== 'test') {
 
 ## New negative / guard tests
 
-| Test | Result |
-|------|--------|
-| Production hook block despite opt-in env vars | **PASSED** |
-| `NODE_ENV` undefined → blocked despite opt-in | **PASSED** (2.1.25.1) |
-| `NODE_ENV=development` → blocked despite opt-in | **PASSED** (2.1.25.1) |
-| `NODE_ENV=staging` → blocked despite opt-in | **PASSED** (2.1.25.1) |
-| `NODE_ENV=test` → allowed | **PASSED** |
-| Local rotate/retire blocked outside test | **PASSED** |
-| KMS SSA/envelope/access hooks blocked outside test | **PASSED** |
-| Production KMS registration excludes local providers | **PASSED** |
-| Empty KeyId fail closed | **PASSED** |
-| Unexpected UUID rejected; ARN↔UUID exact OK; substring rejected | **PASSED** |
+| Test                                                            | Result                |
+| --------------------------------------------------------------- | --------------------- |
+| Production hook block despite opt-in env vars                   | **PASSED**            |
+| `NODE_ENV` undefined → blocked despite opt-in                   | **PASSED** (2.1.25.1) |
+| `NODE_ENV=development` → blocked despite opt-in                 | **PASSED** (2.1.25.1) |
+| `NODE_ENV=staging` → blocked despite opt-in                     | **PASSED** (2.1.25.1) |
+| `NODE_ENV=test` → allowed                                       | **PASSED**            |
+| Local rotate/retire blocked outside test                        | **PASSED**            |
+| KMS SSA/envelope/access hooks blocked outside test              | **PASSED**            |
+| Production KMS registration excludes local providers            | **PASSED**            |
+| Empty KeyId fail closed                                         | **PASSED**            |
+| Unexpected UUID rejected; ARN↔UUID exact OK; substring rejected | **PASSED**            |
 
 ## Exact test outcomes (after 2.1.25.1)
 
-| Command | Outcome |
-|---------|---------|
-| `npm run test:auth:kms-unit` | **21 PASSED** |
+| Command                          | Outcome                 |
+| -------------------------------- | ----------------------- |
+| `npm run test:auth:kms-unit`     | **21 PASSED**           |
 | `npm run test:auth:kms:multikey` | **4 PASSED** (live AWS) |
-| `npm run test:auth:kms` | **6 PASSED** |
-| `npm run test:auth:kms:persist` | **4 PASSED** |
-| `npm run test:auth:memory` | **12 PASSED** |
-| `npm run test:auth:postgres` | **14 PASSED** |
-| `npm run test:auth:access` | **16 PASSED** |
-| `npm run test:auth:redis` | **16 PASSED** |
+| `npm run test:auth:kms`          | **6 PASSED**            |
+| `npm run test:auth:kms:persist`  | **4 PASSED**            |
+| `npm run test:auth:memory`       | **12 PASSED**           |
+| `npm run test:auth:postgres`     | **14 PASSED**           |
+| `npm run test:auth:access`       | **16 PASSED**           |
+| `npm run test:auth:redis`        | **16 PASSED**           |
 
 **Failed:** none.
 

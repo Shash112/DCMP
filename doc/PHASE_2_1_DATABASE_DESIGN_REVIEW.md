@@ -134,7 +134,7 @@ The following table provides the exhaustive catalogue of all **63** relational d
 | **9**  | `users`                           | `User`                         | Organization & Identity     | **Tenant-Owned**    | **Mandatory**     | `id UUID PK`, `(organization_id, id) UNIQUE`, Partial unique `lower(email) WHERE deleted_at IS NULL`                          | `organizations(id)`                                                                                  | **Stage 1**     |
 | **10** | `user_sessions`                   | `UserSession`                  | Organization & Identity     | **Tenant-Owned**    | **Mandatory**     | `id UUID PK`, `(organization_id, id) UNIQUE`                                                                                  | `organizations(id)`, `users(org, id)`                                                                | **Stage 1**     |
 | **11** | `user_session_tokens`             | `UserSessionToken`             | Organization & Identity     | **Tenant-Owned**    | **Mandatory**     | `id UUID PK`, `token_hash UNIQUE`, `(organization_id, id) UNIQUE`, `(organization_id, session_id, id) UNIQUE`                 | `user_sessions(org, id)`                                                                             | **Stage 1**     |
-| **12** | `refresh_idempotency_records`     | `RefreshIdempotencyRecord`     | Organization & Identity     | **Tenant-Owned**    | **Mandatory**     | `id UUID PK`, `(organization_id, session_id, request_fingerprint) UNIQUE`, `(organization_id, id) UNIQUE`                    | `user_sessions(org, id)`, `user_session_tokens(org, session, id)`                                    | **Stage 1**     |
+| **12** | `refresh_idempotency_records`     | `RefreshIdempotencyRecord`     | Organization & Identity     | **Tenant-Owned**    | **Mandatory**     | `id UUID PK`, `(organization_id, session_id, request_fingerprint) UNIQUE`, `(organization_id, id) UNIQUE`                     | `user_sessions(org, id)`, `user_session_tokens(org, session, id)`                                    | **Stage 1**     |
 | **13** | `roles`                           | `Role`                         | Organization & Identity     | **Tenant-Owned**    | **Mandatory**     | `id UUID PK`, `(organization_id, id) UNIQUE`, `(org, name) UNIQUE`                                                            | `organizations(id)`                                                                                  | **Stage 1**     |
 | **14** | `permissions`                     | `Permission`                   | Organization & Identity     | **Platform-Global** | Absent            | `id UUID PK`, `key UNIQUE`                                                                                                    | None                                                                                                 | **Stage 1**     |
 | **15** | `role_permissions`                | `RolePermission`               | Organization & Identity     | **Tenant-Owned**    | **Mandatory**     | `(role_id, permission_id) PK`                                                                                                 | `roles(org, id)`, `permissions(id)`                                                                  | **Stage 1**     |
@@ -195,13 +195,13 @@ The following table provides the exhaustive catalogue of all **63** relational d
 
 Explicit Stage 1 inventory (Phase 2.1.13 reconciliation):
 
-| Class | Count | Tables |
-| ----- | ----- | ------ |
-| **Platform-Global (RLS: none)** | **6** | `platform_admins`, `platform_roles`, `platform_permissions`, `platform_admin_role_assignments`, `platform_role_permissions`, `permissions` |
-| **Tenant-Root (FORCE RLS)** | **1** | `organizations` |
-| **Tenant-Owned (FORCE RLS)** | **13** | `organization_domains`, `organization_settings`, `users`, `user_sessions`, `user_session_tokens`, `refresh_idempotency_records`, `roles`, `role_permissions`, `user_roles`, `locations`, `departments`, `teams`, `user_organizational_assignments` |
-| **Stage 1 total** | **20** | |
-| **Stage 1 RLS-enabled** | **14** | 1 tenant-root + 13 tenant-owned |
+| Class                           | Count  | Tables                                                                                                                                                                                                                                             |
+| ------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Platform-Global (RLS: none)** | **6**  | `platform_admins`, `platform_roles`, `platform_permissions`, `platform_admin_role_assignments`, `platform_role_permissions`, `permissions`                                                                                                         |
+| **Tenant-Root (FORCE RLS)**     | **1**  | `organizations`                                                                                                                                                                                                                                    |
+| **Tenant-Owned (FORCE RLS)**    | **13** | `organization_domains`, `organization_settings`, `users`, `user_sessions`, `user_session_tokens`, `refresh_idempotency_records`, `roles`, `role_permissions`, `user_roles`, `locations`, `departments`, `teams`, `user_organizational_assignments` |
+| **Stage 1 total**               | **20** |                                                                                                                                                                                                                                                    |
+| **Stage 1 RLS-enabled**         | **14** | 1 tenant-root + 13 tenant-owned                                                                                                                                                                                                                    |
 
 - **Tenant-Root Table (1):** `organizations`
   ```sql
@@ -423,7 +423,7 @@ The Phase 2.2 implementation must execute and pass the following 62 mandatory in
 | **DB-SEC-071** | Identical Simultaneous DPoP     | `/auth/refresh`                     | Two requests with same proof arrive simultaneously                 | Both return 200 OK (same tokens)              | Exactly 1 DB rotation + 1 idempotency row   | Redis optional               | **Yes (2 Reqs)**  | **PLANNED**      |
 | **DB-SEC-072** | Divergent Proofs Same Token     | `/auth/refresh`                     | Request B presents same old token with different proof             | Request B fails 401 Unauthorized              | Session family revoked                      | Hard reuse detected          | **Yes (2 Reqs)**  | **PLANNED**      |
 | **DB-SEC-073** | Cache-Hit Concurrent Logout     | Gateway & DB                        | Cache hit evaluates DB check while user logs out concurrently      | `401 Unauthorized`                            | `is_active = false`                         | Cache purged                 | **Yes (2 Conns)** | **PLANNED**      |
-| **DB-SEC-074** | Canonical Retry-Cache Key       | Redis Key Evaluation                | Validate `dcmp-retry-key-v1` canonical encoding (Phase 2.1.11 §8)   | Exact key match                               | No collision or false miss                  | Key persisted                | No                | **PLANNED**      |
+| **DB-SEC-074** | Canonical Retry-Cache Key       | Redis Key Evaluation                | Validate `dcmp-retry-key-v1` canonical encoding (Phase 2.1.11 §8)  | Exact key match                               | No collision or false miss                  | Key persisted                | No                | **PLANNED**      |
 
 > **Phase 2.1.11–2.1.12 additions:** DB-SEC-075…092 (2.1.11) and DB-SEC-093…100 plus revised 048/049/054/068/071 (2.1.12) are **PLANNED**. See [PHASE_2_1_12_FINAL_ARCHITECTURE_CORRECTIONS.md](PHASE_2_1_12_FINAL_ARCHITECTURE_CORRECTIONS.md). Written cases are not evidence of execution.
 
@@ -431,14 +431,14 @@ The Phase 2.2 implementation must execute and pass the following 62 mandatory in
 
 ## 7. Implementation Readiness Sign-Off
 
-| Gate | Result |
-| ---- | ------ |
-| Entity inventory | **63** (justified add: `refresh_idempotency_records`) |
-| Eleven domains / seven migration stages | Unchanged |
-| Corrections A–F documented | Yes — Phase 2.1.12 |
-| SQL executed against PostgreSQL 16 | **No** |
-| Security tests implemented / passed | **No** / **No** |
-| APPROVED FOR POSTGRESQL 16 VALIDATION | **Yes** |
-| Approved for Phase 2.2 implementation | **No** |
+| Gate                                    | Result                                                |
+| --------------------------------------- | ----------------------------------------------------- |
+| Entity inventory                        | **63** (justified add: `refresh_idempotency_records`) |
+| Eleven domains / seven migration stages | Unchanged                                             |
+| Corrections A–F documented              | Yes — Phase 2.1.12                                    |
+| SQL executed against PostgreSQL 16      | **No**                                                |
+| Security tests implemented / passed     | **No** / **No**                                       |
+| APPROVED FOR POSTGRESQL 16 VALIDATION   | **Yes**                                               |
+| Approved for Phase 2.2 implementation   | **No**                                                |
 
 **Do not start Phase 2.2 implementation until PostgreSQL 16 validation evidence exists and is explicitly approved.**

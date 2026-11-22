@@ -1,10 +1,7 @@
 import { createHash, randomBytes } from 'crypto';
 import { Injectable } from '@nestjs/common';
 import { assertCryptoTestHooksAllowed } from './crypto-test-hooks';
-import {
-  EncryptionKeyMaterial,
-  RefreshCipherKeyProvider,
-} from './key-provider.interface';
+import { EncryptionKeyMaterial, RefreshCipherKeyProvider } from './key-provider.interface';
 
 /**
  * Local/test key provider. Refuses to activate when NODE_ENV=production

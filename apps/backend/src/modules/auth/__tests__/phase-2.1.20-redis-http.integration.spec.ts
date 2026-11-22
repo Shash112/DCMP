@@ -65,19 +65,20 @@ describe('Phase 2.1.20 Real Redis + HTTP/DPoP + SSA', () => {
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    const { ResponseTransformInterceptor } = await import(
-      '../../../common/interceptors/response.interceptor'
-    );
-    const { GlobalHttpExceptionFilter } = await import(
-      '../../../common/filters/http-exception.filter'
-    );
+    const { ResponseTransformInterceptor } =
+      await import('../../../common/interceptors/response.interceptor');
+    const { GlobalHttpExceptionFilter } =
+      await import('../../../common/filters/http-exception.filter');
     app.useGlobalInterceptors(new ResponseTransformInterceptor());
     app.useGlobalFilters(new GlobalHttpExceptionFilter());
     await app.init();
 
     assert.ok(app.get(AUTH_STORE) instanceof PostgresAuthStore);
     const r = app.get(AUTH_REDIS);
-    assert.ok(r instanceof RealRedisAdapter, `Expected RealRedisAdapter got ${r?.constructor?.name}`);
+    assert.ok(
+      r instanceof RealRedisAdapter,
+      `Expected RealRedisAdapter got ${r?.constructor?.name}`,
+    );
     redis = r as RealRedisAdapter;
     auth = app.get(AuthService);
     pg = app.get(ValidationPgPool);
@@ -202,7 +203,12 @@ describe('Phase 2.1.20 Real Redis + HTTP/DPoP + SSA', () => {
     const nx1 = await redis.setNx('auth:test:nx', '1', 30);
     const nx2 = await redis.setNx('auth:test:nx', '1', 30);
     await redis.del('auth:test:nx');
-    rec('DB-SEC-REDIS-201', 'PING + atomic SET NX', ok && nx1 && !nx2, `ping=${ok} nx1=${nx1} nx2=${nx2}`);
+    rec(
+      'DB-SEC-REDIS-201',
+      'PING + atomic SET NX',
+      ok && nx1 && !nx2,
+      `ping=${ok} nx1=${nx1} nx2=${nx2}`,
+    );
   });
 
   test('DB-SEC-REDIS-202 TTL expiry', async () => {
@@ -210,7 +216,12 @@ describe('Phase 2.1.20 Real Redis + HTTP/DPoP + SSA', () => {
     const mid = await redis.get('auth:test:ttl');
     await new Promise((r) => setTimeout(r, 1200));
     const after = await redis.get('auth:test:ttl');
-    rec('DB-SEC-REDIS-202', 'TTL expiry', mid === 'x' && after === null, `mid=${mid} after=${after}`);
+    rec(
+      'DB-SEC-REDIS-202',
+      'TTL expiry',
+      mid === 'x' && after === null,
+      `mid=${mid} after=${after}`,
+    );
   });
 
   // ——— HTTP auth + DPoP ———
@@ -218,8 +229,7 @@ describe('Phase 2.1.20 Real Redis + HTTP/DPoP + SSA', () => {
     const jwks = await http('GET', '/api/v1/auth/.well-known/jwks.json');
     assert.equal(jwks.status, 200);
     const keys =
-      unwrapData<{ keys: unknown[] }>(jwks.json).keys ||
-      (jwks.json as { keys: unknown[] }).keys;
+      unwrapData<{ keys: unknown[] }>(jwks.json).keys || (jwks.json as { keys: unknown[] }).keys;
     const login = await loginPair();
     const htu = `${baseUrl}/api/v1/auth/me`;
     const proof = await mintTestDpopProof({
@@ -377,7 +387,12 @@ describe('Phase 2.1.20 Real Redis + HTTP/DPoP + SSA', () => {
     const statuses = [a.status, b.status];
     const oneOk = statuses.includes(200);
     const oneFail = statuses.some((s) => s === 401);
-    rec('DB-SEC-072', 'divergent concurrent proofs', oneOk && oneFail, `statuses=${statuses.join(',')}`);
+    rec(
+      'DB-SEC-072',
+      'divergent concurrent proofs',
+      oneOk && oneFail,
+      `statuses=${statuses.join(',')}`,
+    );
   });
 
   test('DB-SEC-021 logout then protected me denied', async () => {
@@ -470,10 +485,10 @@ describe('Phase 2.1.20 Real Redis + HTTP/DPoP + SSA', () => {
 
   // ——— SSA gateway E2E ———
   test('DB-SEC-SSA-GATEWAY full HTTP mint + open', async () => {
-    const u = await pg.pool.query(`SELECT id FROM public.users WHERE organization_id=$1 AND email=$2`, [
-      ORG_A,
-      EMAIL,
-    ]);
+    const u = await pg.pool.query(
+      `SELECT id FROM public.users WHERE organization_id=$1 AND email=$2`,
+      [ORG_A, EMAIL],
+    );
     const userId = u.rows[0].id as string;
 
     const req = await http('POST', '/api/v1/auth/support/requests', {
@@ -527,8 +542,11 @@ describe('Phase 2.1.20 Real Redis + HTTP/DPoP + SSA', () => {
     const u = await pg.pool.query(`SELECT id FROM public.users WHERE email=$1`, [EMAIL]);
     const userId = u.rows[0].id as string;
     const req = unwrapData<{ requestId: string }>(
-      (await http('POST', '/api/v1/auth/support/requests', { body: { organizationId: ORG_A, adminId: ADMIN_ID } }))
-        .json,
+      (
+        await http('POST', '/api/v1/auth/support/requests', {
+          body: { organizationId: ORG_A, adminId: ADMIN_ID },
+        })
+      ).json,
     );
     const grant = unwrapData<{ grantId: string }>(
       (
@@ -578,8 +596,11 @@ describe('Phase 2.1.20 Real Redis + HTTP/DPoP + SSA', () => {
     const u = await pg.pool.query(`SELECT id FROM public.users WHERE email=$1`, [EMAIL]);
     const userId = u.rows[0].id as string;
     const req = unwrapData<{ requestId: string }>(
-      (await http('POST', '/api/v1/auth/support/requests', { body: { organizationId: ORG_A, adminId: ADMIN_ID } }))
-        .json,
+      (
+        await http('POST', '/api/v1/auth/support/requests', {
+          body: { organizationId: ORG_A, adminId: ADMIN_ID },
+        })
+      ).json,
     );
     const grant = unwrapData<{ grantId: string }>(
       (

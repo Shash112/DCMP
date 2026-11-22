@@ -7,15 +7,15 @@ Not production readiness. No commit/push.
 
 ## Files changed
 
-| Path | Change |
-|------|--------|
-| `apps/backend/src/modules/auth/crypto/auth-crypto.registration.ts` | **NEW** — exclusive local vs KMS provider registration |
-| `apps/backend/src/modules/auth/auth.module.ts` | Registers only `cryptoReg.providerClasses` (no local classes in KMS mode) |
-| `apps/backend/src/modules/auth/__tests__/set-kms-redis-postgres-env.ts` | **NEW** — live KMS env (no `AUTH_ALLOW_LOCAL_KEYS`) |
-| `apps/backend/src/modules/auth/__tests__/auth-crypto-registration.spec.ts` | **NEW** — DI/config unit tests |
-| `apps/backend/src/modules/auth/__tests__/phase-2.1.22-live-kms.integration.spec.ts` | **NEW** — live KMS suite A–E |
-| `apps/backend/src/modules/auth/support/support-session.service.ts` | RESET SESSION AUTHORIZATION before grant confirm after attested open |
-| `apps/backend/package.json` | `test:auth:kms`, expanded `test:auth:kms-unit` |
+| Path                                                                                | Change                                                                    |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `apps/backend/src/modules/auth/crypto/auth-crypto.registration.ts`                  | **NEW** — exclusive local vs KMS provider registration                    |
+| `apps/backend/src/modules/auth/auth.module.ts`                                      | Registers only `cryptoReg.providerClasses` (no local classes in KMS mode) |
+| `apps/backend/src/modules/auth/__tests__/set-kms-redis-postgres-env.ts`             | **NEW** — live KMS env (no `AUTH_ALLOW_LOCAL_KEYS`)                       |
+| `apps/backend/src/modules/auth/__tests__/auth-crypto-registration.spec.ts`          | **NEW** — DI/config unit tests                                            |
+| `apps/backend/src/modules/auth/__tests__/phase-2.1.22-live-kms.integration.spec.ts` | **NEW** — live KMS suite A–E                                              |
+| `apps/backend/src/modules/auth/support/support-session.service.ts`                  | RESET SESSION AUTHORIZATION before grant confirm after attested open      |
+| `apps/backend/package.json`                                                         | `test:auth:kms`, expanded `test:auth:kms-unit`                            |
 
 ## DI changes
 
@@ -43,30 +43,30 @@ AWS account gate: **980921756876** only.
 
 ## Database prerequisites (`dcmp_validation`)
 
-| Prerequisite | Status |
-|--------------|--------|
-| `encrypted_data_key` column | Present |
-| `open_support_session_attested` | Present |
-| SSA tables + `b64url_to_bytea` | Present |
+| Prerequisite                       | Status                               |
+| ---------------------------------- | ------------------------------------ |
+| `encrypted_data_key` column        | Present                              |
+| `open_support_session_attested`    | Present                              |
+| SSA tables + `b64url_to_bytea`     | Present                              |
 | Migrations auto-applied this phase | **No** (already present from 2.1.21) |
 
 `dcmp_full_schema_validation` **not** used.
 
 ## Tests
 
-| Suite | Result |
-|-------|--------|
+| Suite                        | Result                  |
+| ---------------------------- | ----------------------- |
 | `npm run test:auth:kms-unit` | **7 PASSED** (DI + DER) |
-| `npm run test:auth:kms` | **6 PASSED / 0 FAILED** |
+| `npm run test:auth:kms`      | **6 PASSED / 0 FAILED** |
 
-| Test ID | Result |
-|---------|--------|
-| DB-SEC-KMS-AT-JWKS | PASSED |
-| DB-SEC-KMS-AT-SIGN | PASSED (64-byte JOSE ES256) |
-| DB-SEC-KMS-SSA-MAC | PASSED (Mac + attested open + replay) |
-| DB-SEC-KMS-ENVELOPE | PASSED (round-trip + tamper/AAD deny) |
-| DB-SEC-KMS-503 | PASSED (KMS Sign stub + Redis → 503; no local providers) |
-| DB-SEC-KMS-ROTATE-COMPAT | PASSED |
+| Test ID                  | Result                                                   |
+| ------------------------ | -------------------------------------------------------- |
+| DB-SEC-KMS-AT-JWKS       | PASSED                                                   |
+| DB-SEC-KMS-AT-SIGN       | PASSED (64-byte JOSE ES256)                              |
+| DB-SEC-KMS-SSA-MAC       | PASSED (Mac + attested open + replay)                    |
+| DB-SEC-KMS-ENVELOPE      | PASSED (round-trip + tamper/AAD deny)                    |
+| DB-SEC-KMS-503           | PASSED (KMS Sign stub + Redis → 503; no local providers) |
+| DB-SEC-KMS-ROTATE-COMPAT | PASSED                                                   |
 
 Evidence: `infrastructure/database-validation/evidence/phase-2.1.22/`
 

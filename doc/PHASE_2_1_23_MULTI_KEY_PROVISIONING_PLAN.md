@@ -12,11 +12,11 @@ Refresh-master multi-CMK live proof similarly needs a second symmetric CMK and h
 
 ## Proposed non-prod keys (do not create until approved)
 
-| Purpose | Spec | Alias (suggested) | Env after create |
-|---------|------|-------------------|------------------|
-| Access-token verify (prior) | `ECC_NIST_P256` / `SIGN_VERIFY` | `alias/dcmp-nonprod-access-token-v0` | Add UUID/ARN to `DCMP_KMS_ACCESS_TOKEN_VERIFY_KEY_IDS`; keep active in `DCMP_KMS_ACCESS_TOKEN_KEY_ID` |
-| SSA HMAC verify (prior) | `HMAC_256` / `GENERATE_VERIFY_MAC` | `alias/dcmp-nonprod-ssa-hmac-v0` | Add to `DCMP_KMS_SSA_HMAC_VERIFY_KEY_IDS` |
-| Refresh master (prior) | Symmetric CMK for `GenerateDataKey`/`Decrypt` | `alias/dcmp-nonprod-refresh-master-v0` | Encrypt sample under v0, then set active to current master and put v0 in `DCMP_KMS_REFRESH_MASTER_VERIFY_KEY_IDS` |
+| Purpose                     | Spec                                          | Alias (suggested)                      | Env after create                                                                                                  |
+| --------------------------- | --------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Access-token verify (prior) | `ECC_NIST_P256` / `SIGN_VERIFY`               | `alias/dcmp-nonprod-access-token-v0`   | Add UUID/ARN to `DCMP_KMS_ACCESS_TOKEN_VERIFY_KEY_IDS`; keep active in `DCMP_KMS_ACCESS_TOKEN_KEY_ID`             |
+| SSA HMAC verify (prior)     | `HMAC_256` / `GENERATE_VERIFY_MAC`            | `alias/dcmp-nonprod-ssa-hmac-v0`       | Add to `DCMP_KMS_SSA_HMAC_VERIFY_KEY_IDS`                                                                         |
+| Refresh master (prior)      | Symmetric CMK for `GenerateDataKey`/`Decrypt` | `alias/dcmp-nonprod-refresh-master-v0` | Encrypt sample under v0, then set active to current master and put v0 in `DCMP_KMS_REFRESH_MASTER_VERIFY_KEY_IDS` |
 
 ## IAM
 

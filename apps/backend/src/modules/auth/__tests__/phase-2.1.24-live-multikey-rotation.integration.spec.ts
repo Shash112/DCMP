@@ -63,7 +63,13 @@ const PRIOR_SSA_KID = `kms-hmac256:${PRIOR_SSA}`;
 const ISSUER = process.env.DCMP_ACCESS_TOKEN_ISSUER || 'https://auth.dcmp.local';
 const AUDIENCE = process.env.DCMP_ACCESS_TOKEN_AUDIENCE || 'dcmp-api';
 
-type Case = { test_id: string; scenario: string; status: string; detail: string; live_aws: boolean };
+type Case = {
+  test_id: string;
+  scenario: string;
+  status: string;
+  detail: string;
+  live_aws: boolean;
+};
 
 describe('Phase 2.1.24 Live multi-key KMS rotation', () => {
   let app: INestApplication;
@@ -127,12 +133,10 @@ describe('Phase 2.1.24 Live multi-key KMS rotation', () => {
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    const { ResponseTransformInterceptor } = await import(
-      '../../../common/interceptors/response.interceptor'
-    );
-    const { GlobalHttpExceptionFilter } = await import(
-      '../../../common/filters/http-exception.filter'
-    );
+    const { ResponseTransformInterceptor } =
+      await import('../../../common/interceptors/response.interceptor');
+    const { GlobalHttpExceptionFilter } =
+      await import('../../../common/filters/http-exception.filter');
     app.useGlobalInterceptors(new ResponseTransformInterceptor());
     app.useGlobalFilters(new GlobalHttpExceptionFilter());
     await app.init();
@@ -192,11 +196,7 @@ describe('Phase 2.1.24 Live multi-key KMS rotation', () => {
     await app.close();
   });
 
-  async function http(
-    method: string,
-    path: string,
-    opts: { body?: unknown; dpop?: string } = {},
-  ) {
+  async function http(method: string, path: string, opts: { body?: unknown; dpop?: string } = {}) {
     const headers: Record<string, string> = { 'content-type': 'application/json' };
     if (opts.dpop) headers[HTTP_HEADERS.DPOP] = opts.dpop;
     const res = await fetch(`${baseUrl}${path}`, {
@@ -306,7 +306,9 @@ describe('Phase 2.1.24 Live multi-key KMS rotation', () => {
     }
 
     // Unknown kid rejected
-    const unknown = await accessKeys.getVerificationKey('kms-es256:00000000-0000-0000-0000-000000000000');
+    const unknown = await accessKeys.getVerificationKey(
+      'kms-es256:00000000-0000-0000-0000-000000000000',
+    );
     assert.equal(unknown, null);
 
     // No local fallback
@@ -418,7 +420,8 @@ describe('Phase 2.1.24 Live multi-key KMS rotation', () => {
       dpop: proof.proof,
     });
     assert.equal(r1.status, 200, JSON.stringify(r1.json));
-    const newRefresh = unwrapData<{ tokens: { refreshToken: string } }>(r1.json).tokens.refreshToken;
+    const newRefresh = unwrapData<{ tokens: { refreshToken: string } }>(r1.json).tokens
+      .refreshToken;
 
     const st = await http('POST', '/api/v1/auth/sessions/status', {
       body: { refreshToken: newRefresh },
@@ -497,7 +500,10 @@ describe('Phase 2.1.24 Live multi-key KMS rotation', () => {
        ORDER BY created_at DESC LIMIT 1`,
       [ORG_A, sid3],
     );
-    assert.match(String(row3.rows[0].encryption_key_id), new RegExp(`kms-envelope:${ACTIVE_REFRESH}`));
+    assert.match(
+      String(row3.rows[0].encryption_key_id),
+      new RegExp(`kms-envelope:${ACTIVE_REFRESH}`),
+    );
 
     // Encrypt failure → 503, no partial new row for a fresh session
     const sessionB = await login();

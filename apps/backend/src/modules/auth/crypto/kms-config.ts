@@ -57,7 +57,9 @@ export function loadKmsConfig(): DcmpKmsConfig {
   // Refuse accidental reuse of one key for all purposes
   const ids = new Set([accessTokenKeyId, ssaHmacKeyId, refreshMasterKeyId]);
   if (ids.size !== 3) {
-    throw new Error('Access-token, SSA HMAC, and refresh CMK identifiers must be three distinct KMS keys');
+    throw new Error(
+      'Access-token, SSA HMAC, and refresh CMK identifiers must be three distinct KMS keys',
+    );
   }
 
   const split = (v?: string) =>

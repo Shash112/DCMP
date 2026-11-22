@@ -178,9 +178,10 @@ export class SupportSessionService {
           [grantId, input.organizationId, input.requestId, input.approvedByUserId, String(ttl)],
         );
       }
-      const exp = await client.query(`SELECT expires_at FROM public.support_access_grants WHERE id=$1`, [
-        grantId,
-      ]);
+      const exp = await client.query(
+        `SELECT expires_at FROM public.support_access_grants WHERE id=$1`,
+        [grantId],
+      );
       return {
         grantId,
         requestId: input.requestId,

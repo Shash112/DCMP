@@ -87,12 +87,10 @@ describe('Phase 2.1.22 Live AWS KMS', () => {
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    const { ResponseTransformInterceptor } = await import(
-      '../../../common/interceptors/response.interceptor'
-    );
-    const { GlobalHttpExceptionFilter } = await import(
-      '../../../common/filters/http-exception.filter'
-    );
+    const { ResponseTransformInterceptor } =
+      await import('../../../common/interceptors/response.interceptor');
+    const { GlobalHttpExceptionFilter } =
+      await import('../../../common/filters/http-exception.filter');
     app.useGlobalInterceptors(new ResponseTransformInterceptor());
     app.useGlobalFilters(new GlobalHttpExceptionFilter());
     await app.init();
@@ -311,35 +309,40 @@ describe('Phase 2.1.22 Live AWS KMS', () => {
       dpopJkt: 'jkt-envelope-test',
       expiresAt: new Date(Date.now() + 60_000),
     };
-    const blob = await cipher.encrypt({ accessToken: 'x', refreshToken: 'y', expiresIn: 900 }, fields);
+    const blob = await cipher.encrypt(
+      { accessToken: 'x', refreshToken: 'y', expiresIn: 900 },
+      fields,
+    );
     assert.ok(blob.encryptedDataKey && blob.encryptedDataKey.length > 0);
     assert.match(blob.encryptionKeyId, /^kms-envelope:/);
 
     // Persist and reload from PG
-    await pg.pool.query(
-      `INSERT INTO public.refresh_idempotency_records (
+    await pg.pool
+      .query(
+        `INSERT INTO public.refresh_idempotency_records (
          organization_id, session_id, request_fingerprint, presented_token_hash,
          issued_token_id, response_ciphertext, response_iv, response_auth_tag,
          encryption_key_id, dpop_jkt, expires_at, encrypted_data_key
        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-      [
-        // Use a disposable session row? FK may require session — try insert; if FK fails use in-memory only
-        fields.organizationId,
-        fields.sessionId,
-        fields.requestFingerprint,
-        fields.presentedTokenHash,
-        fields.issuedTokenId,
-        blob.ciphertext,
-        blob.iv,
-        blob.authTag,
-        blob.encryptionKeyId,
-        fields.dpopJkt,
-        fields.expiresAt,
-        blob.encryptedDataKey,
-      ],
-    ).catch(async () => {
-      // FK to sessions — round-trip without PG persist is still valid for crypto
-    });
+        [
+          // Use a disposable session row? FK may require session — try insert; if FK fails use in-memory only
+          fields.organizationId,
+          fields.sessionId,
+          fields.requestFingerprint,
+          fields.presentedTokenHash,
+          fields.issuedTokenId,
+          blob.ciphertext,
+          blob.iv,
+          blob.authTag,
+          blob.encryptionKeyId,
+          fields.dpopJkt,
+          fields.expiresAt,
+          blob.encryptedDataKey,
+        ],
+      )
+      .catch(async () => {
+        // FK to sessions — round-trip without PG persist is still valid for crypto
+      });
 
     const plain = await cipher.decrypt(
       {
@@ -447,8 +450,9 @@ describe('Phase 2.1.22 Live AWS KMS', () => {
     // 2) Replay-store unavailable (Redis) also fail-closed 503
     const loginOk = await http('POST', '/api/v1/auth/login', {
       body: { email: EMAIL, password: PASSWORD, organizationId: ORG_A },
-      dpop: (await mintTestDpopProof({ method: 'POST', htu: htuLogin, privateJwk: minted.privateJwk }))
-        .proof,
+      dpop: (
+        await mintTestDpopProof({ method: 'POST', htu: htuLogin, privateJwk: minted.privateJwk })
+      ).proof,
     });
     assert.equal(loginOk.status, 200, JSON.stringify(loginOk.json));
     const tokens = unwrapData<{ tokens: { refreshToken: string } }>(loginOk.json).tokens;

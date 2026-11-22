@@ -24,38 +24,38 @@
 
 ## 1. Summary of Architectural Decisions
 
-| Decision ID | Title                                                                                 | Status                | Category                              | Target Migration        |
-| ----------- | ------------------------------------------------------------------------------------- | --------------------- | ------------------------------------- | ----------------------- |
-| **ADR-001** | Staged Row-Level Security (RLS) Rollout & Context Boundary                            | **Decided**           | Security & Multi-Tenancy              | Stage 1 through Stage 7 |
-| **ADR-002** | Composite Tenant-Aware Foreign Keys & Relational Isolation                            | **Decided**           | Relational Integrity                  | Stage 1 through Stage 7 |
-| **ADR-003** | Four-Tier Entity Ownership Scoping (63 Entities)                                      | **Decided (Revised 2.1.12)** | Data Governance                | All Stages              |
-| **ADR-004** | Prisma Multi-File Schema Structure (`prismaSchemaFolder`)                             | **Decided**           | Toolchain & ORM                       | Stage 1 Foundation      |
-| **ADR-005** | Dual-Tier Session Persistence & Refresh-Token History (`user_session_tokens`)         | **Decided**           | Identity & Security                   | Stage 1 Foundation      |
-| **ADR-006** | Assignment Recurrence, Execution Attempts & Multi-Target Dispatch                     | **Decided**           | Domain Semantics                      | Stage 4 & Stage 5       |
-| **ADR-007** | Partial Unique Indexes for Soft-Delete Handling                                       | **Decided**           | Engine Constraints                    | Stages 1, 2, 3, 5, 6    |
-| **ADR-008** | Multi-Tier Database Roles & Least-Privilege Grants                                    | **Decided**           | Infrastructure Security               | Stage 1 Foundation      |
-| **ADR-009** | Cryptographic Support-Access Authorization (HMAC Signatures & Mid-Session Revocation) | **Decided (Revised 2.1.11)** | Platform Security              | Stage 7 Hardening       |
-| **ADR-010** | Declarative Checklist Question Version Integrity                                      | **Decided**           | Relational Integrity                  | Stage 3 Templates       |
-| **ADR-011** | Client-Bound Idempotent Token Retry Cache & Replay Protection                         | **Decided (Revised 2.1.12)** | Cryptographic Security         | Stage 1 Foundation      |
-| **ADR-012** | Organization Lifecycle Authorization & Tamper Prevention Trigger                      | **Decided (Revised 2.1.11)** | Schema & Engine Security       | Stage 1 Foundation      |
-| **ADR-013** | Stage-Decoupled RLS Policy Deployment                                                 | **Decided**           | Migration Architecture                | Stages 1–6 vs Stage 7   |
-| **ADR-014** | Deferrable NO ACTION Token Replacement FK & 90-Day Retention                          | **Decided**           | Engine Constraints & Retention        | Stage 1 Foundation      |
-| **ADR-015** | Hardware-Backed Device Proof-of-Possession (DPoP / ECDSA P-256)                       | **Decided**           | Identity & Device Binding             | Stage 1 & Stage 2       |
-| **ADR-016** | Non-Login SECURITY DEFINER Role (`dcmp_sec_definer`) & Schema Isolation               | **Decided (Revised 2.1.11)** | PostgreSQL Security            | Stage 7 Hardening       |
-| **ADR-017** | Standard DPoP Protocol (RFC 9449) & Denial-of-Service Prevention                      | **Decided**           | Authentication Architecture           | Stage 1 Foundation      |
-| **ADR-018** | Cryptographic Signed Support Assertions (SSA) & Transaction Isolation                 | **Decided**           | Privileged Access Security            | Stage 7 Hardening       |
-| **ADR-019** | Authoritative Redis Outage, DB Session State Verification & Distributed Lock Protocol | **Decided (Revised 2.1.12)** | Distributed Systems & Concurrency | Stage 1 Foundation  |
-| **ADR-020** | Durable Security Audit Logging & Statement-Timestamp Expiry Semantics                 | **Decided**           | Security & Observability              | Stage 7 Hardening       |
-| **ADR-021** | Blind Audit-Writer Boundary & Linearized Revocation Protocol                          | **Decided (Revised 2.1.12)** | Infrastructure Security & Concurrency | Stage 1 & Stage 7 |
-| **ADR-022** | Retry-Aware DPoP Nonce Protocol & Composite Idempotency Ordering                      | **Decided (Revised 2.1.12)** | Authentication Architecture    | Stage 1 Foundation      |
-| **ADR-023** | Constant-Time Cryptographic Limits & PostgreSQL LEAKPROOF Semantics                   | **Decided**           | Cryptographic Security                | Stage 7 Hardening       |
-| **ADR-024** | Hardened Audit-Writer Boundary, FORCE RLS & Nullable Organization Attribution         | **Decided**           | Security & Observability              | Stage 1 Foundation      |
-| **ADR-025** | Dual-Tier Permissive & Restrictive RLS Policy Composition                             | **Decided**           | Security & Multi-Tenancy              | Stage 1 through Stage 7 |
-| **ADR-026** | Single-Use Challenge & Transaction-Bound Support Authorization                        | **Decided**           | Platform Security                     | Stage 7 Hardening       |
-| **ADR-027** | Dedicated Statement TRUNCATE Trigger & In-Flight DPoP Concurrency Serialization       | **Decided (Revised 2.1.12)** | Observability & Concurrency    | Stage 1 Foundation      |
-| **ADR-028** | PostgreSQL-Backed Refresh Idempotency Records (`refresh_idempotency_records`)         | **Decided**           | Authentication & Durability           | Stage 1 Foundation      |
-| **ADR-029** | Organization Lifecycle Column-Level Privileges & Trigger Guard                        | **Decided**           | Schema & Engine Security              | Stage 1 Foundation      |
-| **ADR-030** | Path-Preserving Canonical Retry-Key Encoding with Verified Digests                    | **Decided**           | Cryptographic Security                | Stage 1 Foundation      |
+| Decision ID | Title                                                                                 | Status                       | Category                              | Target Migration        |
+| ----------- | ------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------- | ----------------------- |
+| **ADR-001** | Staged Row-Level Security (RLS) Rollout & Context Boundary                            | **Decided**                  | Security & Multi-Tenancy              | Stage 1 through Stage 7 |
+| **ADR-002** | Composite Tenant-Aware Foreign Keys & Relational Isolation                            | **Decided**                  | Relational Integrity                  | Stage 1 through Stage 7 |
+| **ADR-003** | Four-Tier Entity Ownership Scoping (63 Entities)                                      | **Decided (Revised 2.1.12)** | Data Governance                       | All Stages              |
+| **ADR-004** | Prisma Multi-File Schema Structure (`prismaSchemaFolder`)                             | **Decided**                  | Toolchain & ORM                       | Stage 1 Foundation      |
+| **ADR-005** | Dual-Tier Session Persistence & Refresh-Token History (`user_session_tokens`)         | **Decided**                  | Identity & Security                   | Stage 1 Foundation      |
+| **ADR-006** | Assignment Recurrence, Execution Attempts & Multi-Target Dispatch                     | **Decided**                  | Domain Semantics                      | Stage 4 & Stage 5       |
+| **ADR-007** | Partial Unique Indexes for Soft-Delete Handling                                       | **Decided**                  | Engine Constraints                    | Stages 1, 2, 3, 5, 6    |
+| **ADR-008** | Multi-Tier Database Roles & Least-Privilege Grants                                    | **Decided**                  | Infrastructure Security               | Stage 1 Foundation      |
+| **ADR-009** | Cryptographic Support-Access Authorization (HMAC Signatures & Mid-Session Revocation) | **Decided (Revised 2.1.11)** | Platform Security                     | Stage 7 Hardening       |
+| **ADR-010** | Declarative Checklist Question Version Integrity                                      | **Decided**                  | Relational Integrity                  | Stage 3 Templates       |
+| **ADR-011** | Client-Bound Idempotent Token Retry Cache & Replay Protection                         | **Decided (Revised 2.1.12)** | Cryptographic Security                | Stage 1 Foundation      |
+| **ADR-012** | Organization Lifecycle Authorization & Tamper Prevention Trigger                      | **Decided (Revised 2.1.11)** | Schema & Engine Security              | Stage 1 Foundation      |
+| **ADR-013** | Stage-Decoupled RLS Policy Deployment                                                 | **Decided**                  | Migration Architecture                | Stages 1–6 vs Stage 7   |
+| **ADR-014** | Deferrable NO ACTION Token Replacement FK & 90-Day Retention                          | **Decided**                  | Engine Constraints & Retention        | Stage 1 Foundation      |
+| **ADR-015** | Hardware-Backed Device Proof-of-Possession (DPoP / ECDSA P-256)                       | **Decided**                  | Identity & Device Binding             | Stage 1 & Stage 2       |
+| **ADR-016** | Non-Login SECURITY DEFINER Role (`dcmp_sec_definer`) & Schema Isolation               | **Decided (Revised 2.1.11)** | PostgreSQL Security                   | Stage 7 Hardening       |
+| **ADR-017** | Standard DPoP Protocol (RFC 9449) & Denial-of-Service Prevention                      | **Decided**                  | Authentication Architecture           | Stage 1 Foundation      |
+| **ADR-018** | Cryptographic Signed Support Assertions (SSA) & Transaction Isolation                 | **Decided**                  | Privileged Access Security            | Stage 7 Hardening       |
+| **ADR-019** | Authoritative Redis Outage, DB Session State Verification & Distributed Lock Protocol | **Decided (Revised 2.1.12)** | Distributed Systems & Concurrency     | Stage 1 Foundation      |
+| **ADR-020** | Durable Security Audit Logging & Statement-Timestamp Expiry Semantics                 | **Decided**                  | Security & Observability              | Stage 7 Hardening       |
+| **ADR-021** | Blind Audit-Writer Boundary & Linearized Revocation Protocol                          | **Decided (Revised 2.1.12)** | Infrastructure Security & Concurrency | Stage 1 & Stage 7       |
+| **ADR-022** | Retry-Aware DPoP Nonce Protocol & Composite Idempotency Ordering                      | **Decided (Revised 2.1.12)** | Authentication Architecture           | Stage 1 Foundation      |
+| **ADR-023** | Constant-Time Cryptographic Limits & PostgreSQL LEAKPROOF Semantics                   | **Decided**                  | Cryptographic Security                | Stage 7 Hardening       |
+| **ADR-024** | Hardened Audit-Writer Boundary, FORCE RLS & Nullable Organization Attribution         | **Decided**                  | Security & Observability              | Stage 1 Foundation      |
+| **ADR-025** | Dual-Tier Permissive & Restrictive RLS Policy Composition                             | **Decided**                  | Security & Multi-Tenancy              | Stage 1 through Stage 7 |
+| **ADR-026** | Single-Use Challenge & Transaction-Bound Support Authorization                        | **Decided**                  | Platform Security                     | Stage 7 Hardening       |
+| **ADR-027** | Dedicated Statement TRUNCATE Trigger & In-Flight DPoP Concurrency Serialization       | **Decided (Revised 2.1.12)** | Observability & Concurrency           | Stage 1 Foundation      |
+| **ADR-028** | PostgreSQL-Backed Refresh Idempotency Records (`refresh_idempotency_records`)         | **Decided**                  | Authentication & Durability           | Stage 1 Foundation      |
+| **ADR-029** | Organization Lifecycle Column-Level Privileges & Trigger Guard                        | **Decided**                  | Schema & Engine Security              | Stage 1 Foundation      |
+| **ADR-030** | Path-Preserving Canonical Retry-Key Encoding with Verified Digests                    | **Decided**                  | Cryptographic Security                | Stage 1 Foundation      |
 
 ---
 
@@ -606,12 +606,12 @@
 
 ADR-001 through ADR-030 are reconciled. Phase 2.1.12 Corrections A–F are the authoritative security baseline for validation.
 
-| Gate | Result |
-| ---- | ------ |
-| ADR register reconciled | Yes |
-| SQL executed against PostgreSQL 16 | **No** |
-| Security tests passed | **No** |
+| Gate                                  | Result  |
+| ------------------------------------- | ------- |
+| ADR register reconciled               | Yes     |
+| SQL executed against PostgreSQL 16    | **No**  |
+| Security tests passed                 | **No**  |
 | APPROVED FOR POSTGRESQL 16 VALIDATION | **Yes** |
-| Approved for Phase 2.2 implementation | **No** |
+| Approved for Phase 2.2 implementation | **No**  |
 
 Authoritative correction report: [PHASE_2_1_12_FINAL_ARCHITECTURE_CORRECTIONS.md](PHASE_2_1_12_FINAL_ARCHITECTURE_CORRECTIONS.md).

@@ -6,25 +6,25 @@ The support-session assertion **application gateway** was completed and exercise
 
 ## Gateway routes (`/api/v1/auth/support/*`)
 
-1. `POST /requests` — platform operator access request  
-2. `POST /approve` — customer approval → time-limited grant  
-3. `POST /challenges` — single-use challenge  
-4. `POST /assertions` — mint HS256 SSA (**TEST-ONLY** key)  
-5. `POST /sessions/open` — `open_support_session` + `verify_support_signature`  
-6. `POST /grants/revoke` — revoke grant  
+1. `POST /requests` — platform operator access request
+2. `POST /approve` — customer approval → time-limited grant
+3. `POST /challenges` — single-use challenge
+4. `POST /assertions` — mint HS256 SSA (**TEST-ONLY** key)
+5. `POST /sessions/open` — `open_support_session` + `verify_support_signature`
+6. `POST /grants/revoke` — revoke grant
 
 Implementation: `support-session.service.ts` / `support-session.controller.ts`.
 
 ## Flow validated
 
-| Step | Result |
-|------|--------|
-| Request + customer approval + grant | PASSED |
-| Challenge issuance | PASSED |
-| Assertion mint (TEST-ONLY) | PASSED |
+| Step                                    | Result                      |
+| --------------------------------------- | --------------------------- |
+| Request + customer approval + grant     | PASSED                      |
+| Challenge issuance                      | PASSED                      |
+| Assertion mint (TEST-ONLY)              | PASSED                      |
 | `open_support_session` success + verify | PASSED (DB-SEC-SSA-GATEWAY) |
-| Replay denied | PASSED (DB-SEC-SSA-REPLAY) |
-| Revoked grant denied | PASSED (DB-SEC-SSA-REVOKED) |
+| Replay denied                           | PASSED (DB-SEC-SSA-REPLAY)  |
+| Revoked grant denied                    | PASSED (DB-SEC-SSA-REVOKED) |
 
 ## Schema note
 

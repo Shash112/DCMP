@@ -3,10 +3,7 @@ import { LocalAccessTokenKeyProvider } from './local-access-token-key.provider';
 import { LocalTestKeyProvider } from './local-test-key.provider';
 import { KmsAccessTokenKeyProvider } from './kms-access-token-key.provider';
 import { KmsRefreshEnvelopeProvider } from './kms-refresh-envelope.provider';
-import {
-  KmsSsaSigningProvider,
-  LocalSsaSigningProvider,
-} from './ssa-signing.provider';
+import { KmsSsaSigningProvider, LocalSsaSigningProvider } from './ssa-signing.provider';
 import {
   assertLocalCryptoAllowed,
   loadKmsConfig,

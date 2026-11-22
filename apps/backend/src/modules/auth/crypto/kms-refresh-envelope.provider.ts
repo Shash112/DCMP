@@ -1,23 +1,12 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  DecryptCommand,
-  GenerateDataKeyCommand,
-  KMSClient,
-} from '@aws-sdk/client-kms';
-import {
-  EncryptionKeyMaterial,
-  RefreshCipherKeyProvider,
-} from './key-provider.interface';
+import { DecryptCommand, GenerateDataKeyCommand, KMSClient } from '@aws-sdk/client-kms';
+import { EncryptionKeyMaterial, RefreshCipherKeyProvider } from './key-provider.interface';
 import { assertCryptoTestHooksAllowed } from './crypto-test-hooks';
 import { createKmsClient } from './kms-client.factory';
 import { DcmpKmsConfig, loadKmsConfig } from './kms-config';
 import { assertWrappingKeyAllowed } from './kms-wrapping-key-allowlist';
-import {
-  EncryptedRefreshBlob,
-  RefreshAadFields,
-  buildRefreshAad,
-} from './refresh-response-cipher';
+import { EncryptedRefreshBlob, RefreshAadFields, buildRefreshAad } from './refresh-response-cipher';
 
 /**
  * Encrypted blob extended with KMS-wrapped data key (never store plaintext DEK).

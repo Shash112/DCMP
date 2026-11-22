@@ -4,8 +4,7 @@
  * Rejects substring / loose suffix matching.
  */
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Extract bare key UUID from a key id or key ARN; null if not a recognizable form. */
 export function extractKmsKeyUuid(id: string): string | null {
@@ -35,7 +34,10 @@ export function isAllowedWrappingKeyId(returned: string, allowed: string[]): boo
   return false;
 }
 
-export function assertWrappingKeyAllowed(returned: string | undefined | null, allowed: string[]): void {
+export function assertWrappingKeyAllowed(
+  returned: string | undefined | null,
+  allowed: string[],
+): void {
   if (!returned || !String(returned).trim()) {
     throw new Error('KMS_UNAVAILABLE:UnexpectedWrappingKey');
   }

@@ -5,22 +5,22 @@
 **Final decision:** **IMPLEMENTATION VALIDATED**  
 **Phase 2.2:** **Blocked** (not authorized)
 
-| Gate | Result |
-| ---- | ------ |
-| PostgreSQL AuthStore in Nest DI | **Yes** (`AUTH_STORE_DRIVER=postgres`) |
-| Auth HTTP tests against PostgreSQL | **14/14 PASSED** |
-| Memory adapter regression | **12/12 PASSED** (reported separately) |
-| Durable refresh + idempotency in PG | **Yes** |
-| Independent-connection concurrency | **PASSED** (dual HTTP + dual pool GUC) |
-| Tenant from server-side session/token | **Yes** |
-| Client org headers cannot authorize | **Yes** (403 / claim-only middleware) |
-| RLS via `dcmp_app` (NOBYPASSRLS) | **Yes** |
-| Pool tenant-context isolation | **PASSED** |
-| Logout / revoke block recovery | **PASSED** |
-| DPoP behavior intact | **Yes** |
-| Real Redis | **NOT RUN** |
-| Full 63-entity schema | **Not applied** |
-| Independent security review | **Outstanding** |
+| Gate                                  | Result                                 |
+| ------------------------------------- | -------------------------------------- |
+| PostgreSQL AuthStore in Nest DI       | **Yes** (`AUTH_STORE_DRIVER=postgres`) |
+| Auth HTTP tests against PostgreSQL    | **14/14 PASSED**                       |
+| Memory adapter regression             | **12/12 PASSED** (reported separately) |
+| Durable refresh + idempotency in PG   | **Yes**                                |
+| Independent-connection concurrency    | **PASSED** (dual HTTP + dual pool GUC) |
+| Tenant from server-side session/token | **Yes**                                |
+| Client org headers cannot authorize   | **Yes** (403 / claim-only middleware)  |
+| RLS via `dcmp_app` (NOBYPASSRLS)      | **Yes**                                |
+| Pool tenant-context isolation         | **PASSED**                             |
+| Logout / revoke block recovery        | **PASSED**                             |
+| DPoP behavior intact                  | **Yes**                                |
+| Real Redis                            | **NOT RUN**                            |
+| Full 63-entity schema                 | **Not applied**                        |
+| Independent security review           | **Outstanding**                        |
 
 Assessment: [PHASE_2_1_16_POSTGRES_AUTHSTORE_IMPLEMENTATION_ASSESSMENT.md](PHASE_2_1_16_POSTGRES_AUTHSTORE_IMPLEMENTATION_ASSESSMENT.md)  
 Access tokens: [PHASE_2_1_16_ACCESS_TOKEN_SECURITY_ASSESSMENT.md](PHASE_2_1_16_ACCESS_TOKEN_SECURITY_ASSESSMENT.md)
@@ -35,15 +35,15 @@ Phase 2.1.16 replaces the in-memory authoritative AuthStore for the NestJS authe
 
 ## 2. Environment verification
 
-| Check | Value |
-| ----- | ----- |
-| Version | PostgreSQL **16.10** |
-| Host/port | `127.0.0.1:55432` |
-| Database | `dcmp_validation` |
-| Bootstrap role | `dcmp_val_super` (trust, disposable) |
-| Runtime role | `dcmp_app` — `rolsuper=f`, `rolbypassrls=f` |
-| Start script | `infrastructure/database-validation/start-pg16-validation.ps1` |
-| SQL addition | `sql/09_auth_gateway_persistence.sql` (applied) |
+| Check          | Value                                                          |
+| -------------- | -------------------------------------------------------------- |
+| Version        | PostgreSQL **16.10**                                           |
+| Host/port      | `127.0.0.1:55432`                                              |
+| Database       | `dcmp_validation`                                              |
+| Bootstrap role | `dcmp_val_super` (trust, disposable)                           |
+| Runtime role   | `dcmp_app` — `rolsuper=f`, `rolbypassrls=f`                    |
+| Start script   | `infrastructure/database-validation/start-pg16-validation.ps1` |
+| SQL addition   | `sql/09_auth_gateway_persistence.sql` (applied)                |
 
 Evidence: `infrastructure/database-validation/evidence/phase-2.1.16/env_verify.txt`
 
@@ -51,13 +51,13 @@ Evidence: `infrastructure/database-validation/evidence/phase-2.1.16/env_verify.t
 
 ## 3. AuthStore implementation
 
-| Component | Path |
-| --------- | ---- |
-| Port | `apps/backend/src/modules/auth/persistence/auth-store.port.ts` |
-| Postgres store | `…/persistence/postgres-auth.store.ts` |
-| Pool | `…/persistence/pg.pool.ts` (`withAppClient`, `withTenantTx` + `SET LOCAL`) |
-| DI switch | `auth.module.ts` — `AUTH_STORE_DRIVER=postgres` |
-| Memory store | retained for Phase 2.1.15 suite |
+| Component      | Path                                                                       |
+| -------------- | -------------------------------------------------------------------------- |
+| Port           | `apps/backend/src/modules/auth/persistence/auth-store.port.ts`             |
+| Postgres store | `…/persistence/postgres-auth.store.ts`                                     |
+| Pool           | `…/persistence/pg.pool.ts` (`withAppClient`, `withTenantTx` + `SET LOCAL`) |
+| DI switch      | `auth.module.ts` — `AUTH_STORE_DRIVER=postgres`                            |
+| Memory store   | retained for Phase 2.1.15 suite                                            |
 
 Operations covered: user lookup/upsert, session create/get/revoke, token-by-hash (DEFINER), idempotency find, transactional `rotateRefresh`, logout invalidation.
 
@@ -89,13 +89,13 @@ Operations covered: user lookup/upsert, session create/get/revoke, token-by-hash
 
 ## 6. Tenant-context design
 
-| Layer | Behavior |
-| ----- | -------- |
+| Layer              | Behavior                                                                          |
+| ------------------ | --------------------------------------------------------------------------------- |
 | `TenantMiddleware` | Annotates `req.tenantClaim` only; does **not** set `req.tenant` for authorization |
-| Login | Org from DB user row; body org mismatch → 403 |
-| Refresh / logout | Org from token → session; forged `X-Organization-Id` → 403 |
-| Session revoke | Requires Bearer access token with matching `orgId` + `sid` |
-| Platform admin | Separate boundary (unchanged; not opened here) |
+| Login              | Org from DB user row; body org mismatch → 403                                     |
+| Refresh / logout   | Org from token → session; forged `X-Organization-Id` → 403                        |
+| Session revoke     | Requires Bearer access token with matching `orgId` + `sid`                        |
+| Platform admin     | Separate boundary (unchanged; not opened here)                                    |
 
 ---
 
@@ -115,10 +115,10 @@ AuthService: crypto-valid DPoP first; durable idempotency before JTI consumption
 
 ## 8. Concurrency test results
 
-| Test | Result |
-| ---- | ------ |
-| Dual HTTP identical refresh | **PASSED** (same rotated token) |
-| Dual pool connections, different org GUCs | **PASSED** |
+| Test                                      | Result                                       |
+| ----------------------------------------- | -------------------------------------------- |
+| Dual HTTP identical refresh               | **PASSED** (same rotated token)              |
+| Dual pool connections, different org GUCs | **PASSED**                                   |
 | Prior Phase 2.1.14 PG harness concurrency | Preserved (not re-run as authority for HTTP) |
 
 ---
@@ -157,26 +157,26 @@ HS256 Bearer scaffold retained (no silent contract break). Missing `iss`/`aud`/`
 
 ## 11. Redis status
 
-| Item | Status |
-| ---- | ------ |
-| Memory Redis adapter | Used in all HTTP tests |
+| Item                                   | Status                                                      |
+| -------------------------------------- | ----------------------------------------------------------- |
+| Memory Redis adapter                   | Used in all HTTP tests                                      |
 | Fail-closed new proof when unavailable | **PASSED** (503 `DPOP_REPLAY_STORE_UNAVAILABLE`) on PG path |
-| Real Redis server | **NOT RUN** (Docker/install forbidden) |
+| Real Redis server                      | **NOT RUN** (Docker/install forbidden)                      |
 
 ---
 
 ## 12. Failed, blocked, and not-run tests
 
-| Item | Status |
-| ---- | ------ |
-| Memory HTTP suite | PASSED 12/12 |
-| Postgres HTTP suite | PASSED 14/14 |
-| Real Redis integration | **NOT RUN** |
-| Injected PG connection failure mid-refresh | **NOT RUN** |
-| Expired idempotency row recovery denial | **NOT RUN** (policy exists; no dedicated HTTP case) |
-| Explicit ROLLBACK fault injection | **NOT RUN** (covered indirectly by exception rollback in pool) |
-| Full 63-entity schema validation | **NOT RUN** |
-| Independent security review | **Outstanding** |
+| Item                                       | Status                                                         |
+| ------------------------------------------ | -------------------------------------------------------------- |
+| Memory HTTP suite                          | PASSED 12/12                                                   |
+| Postgres HTTP suite                        | PASSED 14/14                                                   |
+| Real Redis integration                     | **NOT RUN**                                                    |
+| Injected PG connection failure mid-refresh | **NOT RUN**                                                    |
+| Expired idempotency row recovery denial    | **NOT RUN** (policy exists; no dedicated HTTP case)            |
+| Explicit ROLLBACK fault injection          | **NOT RUN** (covered indirectly by exception rollback in pool) |
+| Full 63-entity schema validation           | **NOT RUN**                                                    |
+| Independent security review                | **Outstanding**                                                |
 
 ---
 

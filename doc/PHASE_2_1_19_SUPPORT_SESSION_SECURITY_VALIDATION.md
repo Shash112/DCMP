@@ -9,30 +9,30 @@
 
 ## 1. SQL path implemented
 
-| Object | Status |
-| ------ | ------ |
-| `dcmp_security.constant_time_eq` | Implemented |
-| `dcmp_security.verify_support_signature` | Implemented |
-| `dcmp_security.open_support_session` | Implemented (full-schema column mapping) |
-| `dcmp_security.b64url_to_bytea` | Implemented (JWT padding) |
-| Platform-admin SELECT policies gated by `verify_support_signature()` | Applied to tenant-owned tables |
-| DEFINER SELECT policies on support request/grant | S12 |
+| Object                                                               | Status                                   |
+| -------------------------------------------------------------------- | ---------------------------------------- |
+| `dcmp_security.constant_time_eq`                                     | Implemented                              |
+| `dcmp_security.verify_support_signature`                             | Implemented                              |
+| `dcmp_security.open_support_session`                                 | Implemented (full-schema column mapping) |
+| `dcmp_security.b64url_to_bytea`                                      | Implemented (JWT padding)                |
+| Platform-admin SELECT policies gated by `verify_support_signature()` | Applied to tenant-owned tables           |
+| DEFINER SELECT policies on support request/grant                     | S12                                      |
 
 ---
 
 ## 2. Executed results
 
-| Test ID | Result |
-| ------- | ------ |
-| DB-SEC-062 constant_time_eq | **PASSED** |
+| Test ID                               | Result                           |
+| ------------------------------------- | -------------------------------- |
+| DB-SEC-062 constant_time_eq           | **PASSED**                       |
 | DB-SEC-SSA-001 open+verify happy path | **PASSED** (`own>=1`, `other=0`) |
-| DB-SEC-009 forged support GUC | **PASSED** |
-| DB-SEC-041 invalid iss | **PASSED** |
-| DB-SEC-010 org claim mismatch | **PASSED** |
-| DB-SEC-013 expired grant | **PASSED** |
-| DB-SEC-034 JTI replay | **PASSED** |
-| DB-SEC-058 admin without SSA | **PASSED** |
-| DB-SEC-SSA-GATEWAY HTTP minting | **NOT_RUN** |
+| DB-SEC-009 forged support GUC         | **PASSED**                       |
+| DB-SEC-041 invalid iss                | **PASSED**                       |
+| DB-SEC-010 org claim mismatch         | **PASSED**                       |
+| DB-SEC-013 expired grant              | **PASSED**                       |
+| DB-SEC-034 JTI replay                 | **PASSED**                       |
+| DB-SEC-058 admin without SSA          | **PASSED**                       |
+| DB-SEC-SSA-GATEWAY HTTP minting       | **NOT_RUN**                      |
 
 Summary: **8 PASSED / 1 NOT_RUN / 0 FAILED**
 

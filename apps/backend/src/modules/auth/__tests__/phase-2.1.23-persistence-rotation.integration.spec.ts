@@ -46,7 +46,12 @@ describe('Phase 2.1.23 KMS persistence + rotation compat', () => {
   const cases: Case[] = [];
 
   function rec(test_id: string, scenario: string, passed: boolean, detail: string) {
-    cases.push({ test_id, scenario, status: passed ? 'PASSED' : 'FAILED', detail: detail.slice(0, 400) });
+    cases.push({
+      test_id,
+      scenario,
+      status: passed ? 'PASSED' : 'FAILED',
+      detail: detail.slice(0, 400),
+    });
     assert.ok(passed, `${test_id}: ${detail}`);
   }
 
@@ -60,12 +65,10 @@ describe('Phase 2.1.23 KMS persistence + rotation compat', () => {
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    const { ResponseTransformInterceptor } = await import(
-      '../../../common/interceptors/response.interceptor'
-    );
-    const { GlobalHttpExceptionFilter } = await import(
-      '../../../common/filters/http-exception.filter'
-    );
+    const { ResponseTransformInterceptor } =
+      await import('../../../common/interceptors/response.interceptor');
+    const { GlobalHttpExceptionFilter } =
+      await import('../../../common/filters/http-exception.filter');
     app.useGlobalInterceptors(new ResponseTransformInterceptor());
     app.useGlobalFilters(new GlobalHttpExceptionFilter());
     await app.init();
@@ -113,11 +116,7 @@ describe('Phase 2.1.23 KMS persistence + rotation compat', () => {
     await app.close();
   });
 
-  async function http(
-    method: string,
-    path: string,
-    opts: { body?: unknown; dpop?: string } = {},
-  ) {
+  async function http(method: string, path: string, opts: { body?: unknown; dpop?: string } = {}) {
     const headers: Record<string, string> = { 'content-type': 'application/json' };
     if (opts.dpop) headers[HTTP_HEADERS.DPOP] = opts.dpop;
     const res = await fetch(`${baseUrl}${path}`, {
@@ -148,7 +147,9 @@ describe('Phase 2.1.23 KMS persistence + rotation compat', () => {
       dpop: minted.proof,
     });
     assert.equal(res.status, 200, JSON.stringify(res.json));
-    const tokens = unwrapData<{ tokens: { refreshToken: string; accessToken: string } }>(res.json).tokens;
+    const tokens = unwrapData<{ tokens: { refreshToken: string; accessToken: string } }>(
+      res.json,
+    ).tokens;
     return { ...tokens, privateJwk: minted.privateJwk, nonce: res.nonce || '', jkt: minted.jkt };
   }
 
@@ -170,7 +171,8 @@ describe('Phase 2.1.23 KMS persistence + rotation compat', () => {
     assert.equal(r1.status, 200, JSON.stringify(r1.json));
 
     // After rotation, status uses new refresh token (parent session FK already existed from login)
-    const newRefresh = unwrapData<{ tokens: { refreshToken: string } }>(r1.json).tokens.refreshToken;
+    const newRefresh = unwrapData<{ tokens: { refreshToken: string } }>(r1.json).tokens
+      .refreshToken;
     const st2 = await http('POST', '/api/v1/auth/sessions/status', {
       body: { refreshToken: newRefresh },
     });

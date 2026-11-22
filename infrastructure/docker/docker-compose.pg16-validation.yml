@@ -16,15 +16,15 @@ services:
       POSTGRES_PASSWORD: dcmp_val_only_not_prod
       POSTGRES_DB: dcmp_validation
     ports:
-      - "127.0.0.1:55432:5432"
+      - '127.0.0.1:55432:5432'
     volumes:
       - dcmp_pg16_validation_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dcmp_val_super -d dcmp_validation"]
+      test: ['CMD-SHELL', 'pg_isready -U dcmp_val_super -d dcmp_validation']
       interval: 5s
       timeout: 5s
       retries: 12
-    restart: "no"
+    restart: 'no'
 
 volumes:
   dcmp_pg16_validation_data:

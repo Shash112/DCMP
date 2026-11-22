@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { exportJWK, generateKeyPair, importJWK, type JWK } from 'jose';
-import {
-  AccessSigningKey,
-  AccessTokenSigningKeyProvider,
-} from './access-token-key.provider';
+import { AccessSigningKey, AccessTokenSigningKeyProvider } from './access-token-key.provider';
 import { assertCryptoTestHooksAllowed } from './crypto-test-hooks';
 
 interface StoredKey {

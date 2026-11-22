@@ -6,13 +6,13 @@ Real Redis is wired into the NestJS authentication gateway via `RealRedisAdapter
 
 ## Components
 
-| Component | Path | Role |
-|-----------|------|------|
+| Component          | Path                                                        | Role                                                  |
+| ------------------ | ----------------------------------------------------------- | ----------------------------------------------------- |
 | `RealRedisAdapter` | `apps/backend/src/modules/auth/redis/real-redis.adapter.ts` | SET/GET/SET NX EX, ping, reconnect, force-unavailable |
-| Driver resolution | `apps/backend/src/modules/auth/redis/redis.port.ts` | `AUTH_REDIS_DRIVER`, refuse memory when required |
-| Auth module wiring | `apps/backend/src/modules/auth/auth.module.ts` | `AUTH_REDIS` → Real or Memory |
-| Config | `apps/backend/src/config/configuration.ts` | host/port/db/driver/required |
-| Health readiness | `apps/backend/src/modules/health/health.service.ts` | PG + Redis checks |
+| Driver resolution  | `apps/backend/src/modules/auth/redis/redis.port.ts`         | `AUTH_REDIS_DRIVER`, refuse memory when required      |
+| Auth module wiring | `apps/backend/src/modules/auth/auth.module.ts`              | `AUTH_REDIS` → Real or Memory                         |
+| Config             | `apps/backend/src/config/configuration.ts`                  | host/port/db/driver/required                          |
+| Health readiness   | `apps/backend/src/modules/health/health.service.ts`         | PG + Redis checks                                     |
 
 ## Environment used
 
@@ -28,13 +28,13 @@ Real Redis is wired into the NestJS authentication gateway via `RealRedisAdapter
 
 ## Validated
 
-| Case | Result |
-|------|--------|
-| PING + atomic SET NX | PASSED |
-| TTL expiry | PASSED |
-| JTI replay prevention | PASSED |
+| Case                                         | Result       |
+| -------------------------------------------- | ------------ |
+| PING + atomic SET NX                         | PASSED       |
+| TTL expiry                                   | PASSED       |
+| JTI replay prevention                        | PASSED       |
 | Injected Redis unavailability during refresh | PASSED (503) |
-| Readiness reflects Redis | PASSED |
+| Readiness reflects Redis                     | PASSED       |
 
 ## Not run
 

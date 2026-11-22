@@ -50,9 +50,7 @@ export interface IdempotencyRecord {
 }
 
 export type LoginLookupResult =
-  | { status: 'found'; user: StoredUser }
-  | { status: 'none' }
-  | { status: 'ambiguous' };
+  { status: 'found'; user: StoredUser } | { status: 'none' } | { status: 'ambiguous' };
 
 export interface AuthStore {
   /** Organization-aware login lookup — never silently picks among multi-org emails. */

@@ -8,21 +8,21 @@
 Architecture decision: [PHASE_2_1_17_ACCESS_TOKEN_ARCHITECTURE_DECISION.md](PHASE_2_1_17_ACCESS_TOKEN_ARCHITECTURE_DECISION.md)  
 Client migration: [PHASE_2_1_17_CLIENT_MIGRATION_NOTES.md](PHASE_2_1_17_CLIENT_MIGRATION_NOTES.md)
 
-| Gate | Result |
-| ---- | ------ |
-| ES256 asymmetric access tokens | **Yes** |
-| `iss` / `aud` enforced | **Yes** |
-| `cnf.jkt` bound to login DPoP key | **Yes** |
+| Gate                                | Result                                        |
+| ----------------------------------- | --------------------------------------------- |
+| ES256 asymmetric access tokens      | **Yes**                                       |
+| `iss` / `aud` enforced              | **Yes**                                       |
+| `cnf.jkt` bound to login DPoP key   | **Yes**                                       |
 | Protected APIs require DPoP + `ath` | **Yes** (`/auth/me`, `/auth/sessions/revoke`) |
-| Replay protection fail-closed | **Yes** (memory Redis) |
-| PostgreSQL session introspection | **Yes** |
-| Logout blocks protected access | **Yes** |
-| Login multi-org ambiguity resolved | **Yes** |
-| Signing-key rotation | **Yes** (local provider) |
-| No production keys hardcoded | **Yes** |
-| PostgreSQL HTTP tests | **16/16 access + 14/14 regression** |
-| Memory regression | **12/12** |
-| Real Redis / KMS | **NOT RUN** |
+| Replay protection fail-closed       | **Yes** (memory Redis)                        |
+| PostgreSQL session introspection    | **Yes**                                       |
+| Logout blocks protected access      | **Yes**                                       |
+| Login multi-org ambiguity resolved  | **Yes**                                       |
+| Signing-key rotation                | **Yes** (local provider)                      |
+| No production keys hardcoded        | **Yes**                                       |
+| PostgreSQL HTTP tests               | **16/16 access + 14/14 regression**           |
+| Memory regression                   | **12/12**                                     |
+| Real Redis / KMS                    | **NOT RUN**                                   |
 
 ---
 
@@ -40,16 +40,16 @@ Phase 2.1.17 retires the HS256 Bearer scaffold. Access tokens are ES256-signed J
 
 ## 3. Token format
 
-| Field | Value |
-| ----- | ----- |
-| Header | `alg=ES256`, `kid`, `typ=at+jwt` |
-| `iss` | `https://auth.dcmp.local` (env override) |
-| `aud` | `dcmp-api` |
-| `sub` | user id |
-| `sid` / `orgId` / `roles` / `type=access` | yes |
-| `iat` / `nbf` / `exp` / `jti` | yes (TTL ≤ 15m) |
-| `cnf.jkt` | login/refresh session DPoP thumbprint |
-| Response `tokenType` | `DPoP` |
+| Field                                     | Value                                    |
+| ----------------------------------------- | ---------------------------------------- |
+| Header                                    | `alg=ES256`, `kid`, `typ=at+jwt`         |
+| `iss`                                     | `https://auth.dcmp.local` (env override) |
+| `aud`                                     | `dcmp-api`                               |
+| `sub`                                     | user id                                  |
+| `sid` / `orgId` / `roles` / `type=access` | yes                                      |
+| `iat` / `nbf` / `exp` / `jti`             | yes (TTL ≤ 15m)                          |
+| `cnf.jkt`                                 | login/refresh session DPoP thumbprint    |
+| Response `tokenType`                      | `DPoP`                                   |
 
 ---
 
@@ -78,11 +78,11 @@ Login stores `dpop_jkt` on the session and embeds the same value in `cnf.jkt`. P
 
 `DpopBoundAuthGuard` → `AuthService.authorizeProtectedResource`:
 
-1. Reject non-`DPoP` Authorization scheme  
-2. ES256 JWT verify (iss/aud/type/cnf)  
-3. `validateDpopProof` with `accessToken` + `expectedJkt`  
-4. JTI replay (fail-closed)  
-5. PostgreSQL session active / subject / org / jkt  
+1. Reject non-`DPoP` Authorization scheme
+2. ES256 JWT verify (iss/aud/type/cnf)
+3. `validateDpopProof` with `accessToken` + `expectedJkt`
+4. JTI replay (fail-closed)
+5. PostgreSQL session active / subject / org / jkt
 
 ---
 
@@ -105,9 +105,9 @@ SQL `10_login_identity_resolution.sql`:
 
 ## 10. Key management
 
-| Provider | Status |
-| -------- | ------ |
-| Local ES256 test keys | Implemented |
+| Provider                  | Status                       |
+| ------------------------- | ---------------------------- |
+| Local ES256 test keys     | Implemented                  |
 | AWS KMS / Secrets Manager | Interface stub — **NOT RUN** |
 
 ---
@@ -120,11 +120,11 @@ Breaking: `tokenType` → `DPoP`; protected routes require DPoP Authorization + 
 
 ## 12. Test results
 
-| Suite | Command | Result |
-| ----- | ------- | ------ |
-| Memory (2.1.15) | `npm run test:auth:memory` | **12/12** |
-| Postgres AuthStore (2.1.16) | `npm run test:auth:postgres` | **14/14** |
-| Access-token security (2.1.17) | `npm run test:auth:access` | **16/16** |
+| Suite                          | Command                      | Result    |
+| ------------------------------ | ---------------------------- | --------- |
+| Memory (2.1.15)                | `npm run test:auth:memory`   | **12/12** |
+| Postgres AuthStore (2.1.16)    | `npm run test:auth:postgres` | **14/14** |
+| Access-token security (2.1.17) | `npm run test:auth:access`   | **16/16** |
 
 Evidence: `infrastructure/database-validation/evidence/phase-2.1.17/`
 
@@ -132,32 +132,32 @@ Evidence: `infrastructure/database-validation/evidence/phase-2.1.17/`
 
 ## 13. Failed, blocked, not-run
 
-| Item | Status |
-| ---- | ------ |
-| Real Redis | **NOT RUN** |
-| Production KMS signing | **NOT RUN** |
+| Item                                      | Status                                                 |
+| ----------------------------------------- | ------------------------------------------------------ |
+| Real Redis                                | **NOT RUN**                                            |
+| Production KMS signing                    | **NOT RUN**                                            |
 | Dedicated expired-AT clock skew HTTP case | **NOT RUN** (jose rejects expired; covered by library) |
-| Dedicated reused protected-route JTI case | **NOT RUN** (mechanism shared with refresh) |
-| Deleted/inactive user login HTTP | **NOT RUN** |
-| Flutter client update | **Not in scope** |
-| Full 63-entity schema | **Not applied** |
-| Independent security review | **Outstanding** |
+| Dedicated reused protected-route JTI case | **NOT RUN** (mechanism shared with refresh)            |
+| Deleted/inactive user login HTTP          | **NOT RUN**                                            |
+| Flutter client update                     | **Not in scope**                                       |
+| Full 63-entity schema                     | **Not applied**                                        |
+| Independent security review               | **Outstanding**                                        |
 
 ---
 
 ## 14. Remaining security gaps
 
-1. Local test signing keys ≠ production readiness.  
-2. Real Redis replay store unproven.  
-3. Rate limiting on login not expanded this phase.  
-4. Platform-admin boundary unchanged.  
+1. Local test signing keys ≠ production readiness.
+2. Real Redis replay store unproven.
+3. Rate limiting on login not expanded this phase.
+4. Platform-admin boundary unchanged.
 5. Only `/me` and session revoke use the guard today — other modules must adopt `DpopBoundAuthGuard` when built.
 
 ---
 
 ## 15. Files changed (focus)
 
-**Created:** access-token key providers, `DpopBoundAuthGuard`, SQL `10_login_identity_resolution.sql`, access-token security tests, architecture/migration/report docs.  
+**Created:** access-token key providers, `DpopBoundAuthGuard`, SQL `10_login_identity_resolution.sql`, access-token security tests, architecture/migration/report docs.
 
 **Modified:** `auth.service.ts`, `auth.controller.ts`, `auth.module.ts`, AuthStore login lookup, `shared-types` / `api-contracts`, postgres HTTP tests for DPoP Authorization.
 

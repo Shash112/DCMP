@@ -49,9 +49,7 @@ export class AuthService {
     @Optional() private readonly config?: ConfigService,
   ) {
     this.refreshPepper =
-      this.config?.get<string>('jwt.refreshSecret') ||
-      process.env.JWT_REFRESH_SECRET ||
-      'dev';
+      this.config?.get<string>('jwt.refreshSecret') || process.env.JWT_REFRESH_SECRET || 'dev';
     this.accessIssuer =
       process.env.DCMP_ACCESS_TOKEN_ISSUER ||
       this.config?.get<string>('auth.accessTokenIssuer') ||
@@ -83,7 +81,10 @@ export class AuthService {
     return user;
   }
 
-  async login(dto: { email: string; password: string; organizationId?: string }, binding: RequestBinding): Promise<{
+  async login(
+    dto: { email: string; password: string; organizationId?: string },
+    binding: RequestBinding,
+  ): Promise<{
     data: LoginResponseData;
     dpopNonce: string;
   }> {
@@ -170,7 +171,11 @@ export class AuthService {
     try {
       proof = await this.validateProof(binding);
     } catch (e) {
-      this.audit.record({ category: 'DPOP_FAILURE', severity: 'HIGH', detail: 'refresh_dpop_failed' });
+      this.audit.record({
+        category: 'DPOP_FAILURE',
+        severity: 'HIGH',
+        detail: 'refresh_dpop_failed',
+      });
       throw e;
     }
 
@@ -359,11 +364,7 @@ export class AuthService {
     }
 
     if (outcome === 'RECOVERED') {
-      const row = await this.store.findIdempotency(
-        session.organizationId,
-        session.id,
-        fingerprint,
-      );
+      const row = await this.store.findIdempotency(session.organizationId, session.id, fingerprint);
       if (!row) throw AuthErrors.unauthenticated('Idempotency recovery failed');
       return this.decryptRecoveredTokens(row, proof, presentedHash, session.id);
     }
@@ -417,7 +418,9 @@ export class AuthService {
     });
   }
 
-  async sessionStatus(refreshToken: string): Promise<{ active: boolean; sessionId?: string; organizationId?: string }> {
+  async sessionStatus(
+    refreshToken: string,
+  ): Promise<{ active: boolean; sessionId?: string; organizationId?: string }> {
     const hash = this.hashRefresh(refreshToken);
     const token = await this.store.getTokenByHash(hash);
     if (!token) return { active: false };

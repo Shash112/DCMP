@@ -74,9 +74,7 @@ export class MemoryAuthStore implements AuthStore {
   }
 
   async findUserById(organizationId: string, userId: string): Promise<StoredUser | null> {
-    return (
-      this.users.find((u) => u.id === userId && u.organizationId === organizationId) || null
-    );
+    return this.users.find((u) => u.id === userId && u.organizationId === organizationId) || null;
   }
 
   async createSession(session: StoredSession, initialToken: StoredToken): Promise<void> {
@@ -125,7 +123,11 @@ export class MemoryAuthStore implements AuthStore {
       if (!session || !session.isActive) return 'TOKEN_REUSE';
 
       const old = this.tokensByHash.get(input.presentedTokenHash);
-      if (!old || old.sessionId !== input.sessionId || old.organizationId !== input.organizationId) {
+      if (
+        !old ||
+        old.sessionId !== input.sessionId ||
+        old.organizationId !== input.organizationId
+      ) {
         return 'TOKEN_REUSE';
       }
       if (old.consumedAt || old.revokedAt) {
@@ -138,11 +140,7 @@ export class MemoryAuthStore implements AuthStore {
       this.tokensByHash.set(input.newToken.tokenHash, input.newToken);
       this.tokensById.set(input.newToken.id, input.newToken);
       this.idempotency.set(
-        this.idemKey(
-          input.organizationId,
-          input.sessionId,
-          input.idempotency.requestFingerprint,
-        ),
+        this.idemKey(input.organizationId, input.sessionId, input.idempotency.requestFingerprint),
         input.idempotency,
       );
       return 'ROTATED';

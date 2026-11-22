@@ -4,18 +4,18 @@
 
 Three **distinct** KMS keys (never shared across purposes):
 
-| Purpose | KMS key type | App surface |
-|---------|--------------|-------------|
+| Purpose              | KMS key type                              | App surface                                                                                |
+| -------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------ |
 | Access-token signing | Asymmetric **ECC_NIST_P256** (SignVerify) | `KmsAccessTokenKeyProvider` — `Sign` ECDSA_SHA_256, DER→JOSE R\|\|S, `GetPublicKey` → JWKS |
-| SSA HS256 | Symmetric **HMAC_256** | `KmsSsaSigningProvider` — `GenerateMac` / `VerifyMac` (key **never exported**) |
-| Refresh idempotency | Symmetric **SYMMETRIC_DEFAULT** CMK | `KmsRefreshEnvelopeProvider` — `GenerateDataKey(AES_256)` + local AES-256-GCM + AAD |
+| SSA HS256            | Symmetric **HMAC_256**                    | `KmsSsaSigningProvider` — `GenerateMac` / `VerifyMac` (key **never exported**)             |
+| Refresh idempotency  | Symmetric **SYMMETRIC_DEFAULT** CMK       | `KmsRefreshEnvelopeProvider` — `GenerateDataKey(AES_256)` + local AES-256-GCM + AAD        |
 
 Local TEST-ONLY providers remain for development/validation. **Production refuses local providers** unless `AUTH_ALLOW_LOCAL_KEYS` (lab-only).
 
 ## Credential chain
 
-1. EC2/ECS/EKS workload IAM role (preferred)  
-2. Other assumed IAM role via default AWS SDK credential provider chain  
+1. EC2/ECS/EKS workload IAM role (preferred)
+2. Other assumed IAM role via default AWS SDK credential provider chain
 3. Development-only shared credentials / profile — **never hardcoded**
 
 Config keys (identifiers only — no secret material):
@@ -30,9 +30,9 @@ Startup fails closed if driver=kms and any of the three IDs is missing, or if th
 
 ## Access-token ES256
 
-1. Active key signs via KMS `Sign` over compact JWT signing input.  
-2. Signature converted with `derToJoseEs256`.  
-3. Verification uses published public JWK (`GetPublicKey`); private key never leaves KMS.  
+1. Active key signs via KMS `Sign` over compact JWT signing input.
+2. Signature converted with `derToJoseEs256`.
+3. Verification uses published public JWK (`GetPublicKey`); private key never leaves KMS.
 4. Rotation: new key becomes active signer; prior kids remain in JWKS until retired.
 
 ## SSA HMAC (non-exportable)
@@ -45,20 +45,20 @@ Local TEST-ONLY mode continues to use `open_support_session` + seeded `internal_
 
 ## Refresh envelope encryption
 
-1. `GenerateDataKey` → plaintext DEK (memory only) + `CiphertextBlob`.  
-2. Encrypt payload with AES-256-GCM; AAD = canonical refresh fields.  
-3. Persist ciphertext, IV, tag, `encryption_key_id`, and `encrypted_data_key` (nullable column added in Stage-1).  
-4. Decrypt: KMS `Decrypt` on wrapped DEK (encryption context bound to org/session) → GCM open → zeroize DEK.  
+1. `GenerateDataKey` → plaintext DEK (memory only) + `CiphertextBlob`.
+2. Encrypt payload with AES-256-GCM; AAD = canonical refresh fields.
+3. Persist ciphertext, IV, tag, `encryption_key_id`, and `encrypted_data_key` (nullable column added in Stage-1).
+4. Decrypt: KMS `Decrypt` on wrapped DEK (encryption context bound to org/session) → GCM open → zeroize DEK.
 5. Never store plaintext DEKs; never fall back to local keys in KMS mode.
 
 ## Fail-closed
 
-| Failure | Behavior |
-|---------|----------|
-| KMS unavailable / throttle | Throw `KMS_UNAVAILABLE:*` → HTTP 503 crypto unavailable |
-| Permission denied | Same fail-closed path |
-| Local providers in production | Startup refusal |
-| Missing / duplicated key IDs | Startup refusal |
+| Failure                       | Behavior                                                |
+| ----------------------------- | ------------------------------------------------------- |
+| KMS unavailable / throttle    | Throw `KMS_UNAVAILABLE:*` → HTTP 503 crypto unavailable |
+| Permission denied             | Same fail-closed path                                   |
+| Local providers in production | Startup refusal                                         |
+| Missing / duplicated key IDs  | Startup refusal                                         |
 
 ## Provisioning (documentation only)
 

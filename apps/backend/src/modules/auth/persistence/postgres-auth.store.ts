@@ -46,9 +46,7 @@ function mapToken(row: Record<string, unknown>): StoredToken {
     expiresAt: asDate(row.expires_at),
     consumedAt: row.consumed_at ? asDate(row.consumed_at) : undefined,
     revokedAt: row.revoked_at ? asDate(row.revoked_at) : undefined,
-    replacedByTokenId: row.replaced_by_token_id
-      ? String(row.replaced_by_token_id)
-      : undefined,
+    replacedByTokenId: row.replaced_by_token_id ? String(row.replaced_by_token_id) : undefined,
   };
 }
 
@@ -112,10 +110,10 @@ export class PostgresAuthStore implements AuthStore {
 
   async findUserById(organizationId: string, userId: string): Promise<StoredUser | null> {
     return this.pg.withAppClient(async (client) => {
-      const { rows } = await client.query(
-        `SELECT * FROM dcmp_security.lookup_user_by_id($1, $2)`,
-        [organizationId, userId],
-      );
+      const { rows } = await client.query(`SELECT * FROM dcmp_security.lookup_user_by_id($1, $2)`, [
+        organizationId,
+        userId,
+      ]);
       return rows[0] ? mapUser(rows[0]) : null;
     });
   }
@@ -145,14 +143,7 @@ export class PostgresAuthStore implements AuthStore {
                password_hash = EXCLUDED.password_hash,
                roles = EXCLUDED.roles,
                deleted_at = NULL`,
-        [
-          user.id,
-          user.organizationId,
-          user.email,
-          user.displayName,
-          user.passwordHash,
-          user.roles,
-        ],
+        [user.id, user.organizationId, user.email, user.displayName, user.passwordHash, user.roles],
       );
       await client.query('COMMIT');
     } catch (e) {
@@ -199,10 +190,9 @@ export class PostgresAuthStore implements AuthStore {
 
   async getTokenByHash(tokenHash: string): Promise<StoredToken | null> {
     return this.pg.withAppClient(async (client) => {
-      const { rows } = await client.query(
-        `SELECT * FROM dcmp_security.lookup_token_by_hash($1)`,
-        [tokenHash],
-      );
+      const { rows } = await client.query(`SELECT * FROM dcmp_security.lookup_token_by_hash($1)`, [
+        tokenHash,
+      ]);
       return rows[0] ? mapToken(rows[0]) : null;
     });
   }
@@ -269,12 +259,7 @@ export class PostgresAuthStore implements AuthStore {
            AND consumed_at IS NULL
            AND revoked_at IS NULL
          RETURNING id, sequence_number`,
-        [
-          input.newToken.id,
-          input.organizationId,
-          input.sessionId,
-          input.presentedTokenHash,
-        ],
+        [input.newToken.id, input.organizationId, input.sessionId, input.presentedTokenHash],
       );
 
       if (consumed.rowCount === 0) {

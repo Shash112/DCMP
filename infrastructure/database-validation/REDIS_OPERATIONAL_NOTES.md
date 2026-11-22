@@ -11,16 +11,16 @@ PostgreSQL remains durable for sessions, refresh rotation, and idempotency recor
 
 ## Configuration (non-secret)
 
-| Variable | Purpose | Safe example |
-|----------|---------|--------------|
-| `AUTH_REDIS_DRIVER` | `real` \| `memory` | `real` |
-| `AUTH_REDIS_REQUIRED` | Refuse memory fallback | `true` in shared/test/prod |
-| `REDIS_HOST` | Host | `127.0.0.1` |
-| `REDIS_PORT` | Port | `6379` |
-| `REDIS_DB` | Logical DB index | `0` (prod) / `15` (local tests) |
-| `REDIS_PASSWORD` | Optional ACL password | **never commit** |
-| `REDIS_CONNECT_TIMEOUT_MS` | Connect timeout | `3000` |
-| `REDIS_COMMAND_TIMEOUT_MS` | Command timeout | `2000` |
+| Variable                   | Purpose                | Safe example                    |
+| -------------------------- | ---------------------- | ------------------------------- |
+| `AUTH_REDIS_DRIVER`        | `real` \| `memory`     | `real`                          |
+| `AUTH_REDIS_REQUIRED`      | Refuse memory fallback | `true` in shared/test/prod      |
+| `REDIS_HOST`               | Host                   | `127.0.0.1`                     |
+| `REDIS_PORT`               | Port                   | `6379`                          |
+| `REDIS_DB`                 | Logical DB index       | `0` (prod) / `15` (local tests) |
+| `REDIS_PASSWORD`           | Optional ACL password  | **never commit**                |
+| `REDIS_CONNECT_TIMEOUT_MS` | Connect timeout        | `3000`                          |
+| `REDIS_COMMAND_TIMEOUT_MS` | Command timeout        | `2000`                          |
 
 ## Persistence / TTL assumptions
 
@@ -30,16 +30,16 @@ PostgreSQL remains durable for sessions, refresh rotation, and idempotency recor
 
 ## Health
 
-- `GET /api/v1/health/live` — process up only  
-- `GET /api/v1/health/ready` — PostgreSQL + Redis when `REAL` / required  
+- `GET /api/v1/health/live` — process up only
+- `GET /api/v1/health/ready` — PostgreSQL + Redis when `REAL` / required
 
 ## Failure modes
 
-| Condition | Expected app behavior |
-|-----------|----------------------|
-| Redis down / forced unavailable | 503 replay-store unavailable for new proof admission |
-| Redis reconnect | ioredis retryStrategy; readiness flips when ready |
-| Memory driver in production / AUTH_REDIS_REQUIRED | **Startup refusal** |
+| Condition                                         | Expected app behavior                                |
+| ------------------------------------------------- | ---------------------------------------------------- |
+| Redis down / forced unavailable                   | 503 replay-store unavailable for new proof admission |
+| Redis reconnect                                   | ioredis retryStrategy; readiness flips when ready    |
+| Memory driver in production / AUTH_REDIS_REQUIRED | **Startup refusal**                                  |
 
 ## Local validation instance
 

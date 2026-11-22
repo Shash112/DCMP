@@ -14,10 +14,10 @@
 
 ## Local / unit
 
-| Test | Result |
-|------|--------|
-| DER↔JOSE round-trip verify | PASSED (`npm run test:auth:kms-unit`) |
-| Prior Phase 2.1.20 HTTP ES256 with local keys | Still PASSED (regression) |
+| Test                                          | Result                                |
+| --------------------------------------------- | ------------------------------------- |
+| DER↔JOSE round-trip verify                    | PASSED (`npm run test:auth:kms-unit`) |
+| Prior Phase 2.1.20 HTTP ES256 with local keys | Still PASSED (regression)             |
 
 ## Rotation / outage
 

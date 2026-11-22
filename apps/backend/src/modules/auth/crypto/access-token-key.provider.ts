@@ -1,11 +1,11 @@
-import type { JWK, JWTPayload, KeyLike } from 'jose';
+import type { CryptoKey, JWK, JWTPayload } from 'jose';
 
 export const ACCESS_TOKEN_SIGNING_KEY_PROVIDER = Symbol('ACCESS_TOKEN_SIGNING_KEY_PROVIDER');
 
 export interface AccessSigningKey {
   kid: string;
   /** Present for local providers; absent when KMS holds the private key */
-  privateKey?: KeyLike | Uint8Array;
+  privateKey?: CryptoKey | Uint8Array;
   publicJwk: JWK;
   /** When false, key may verify but must not sign new tokens */
   activeForSigning: boolean;

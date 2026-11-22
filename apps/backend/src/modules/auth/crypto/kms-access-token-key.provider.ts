@@ -1,15 +1,8 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import {
-  GetPublicKeyCommand,
-  KMSClient,
-  SignCommand,
-} from '@aws-sdk/client-kms';
+import { GetPublicKeyCommand, KMSClient, SignCommand } from '@aws-sdk/client-kms';
 import { createPublicKey } from 'crypto';
-import { exportJWK, importJWK, type JWK, type JWTPayload, type KeyLike } from 'jose';
-import {
-  AccessSigningKey,
-  AccessTokenSigningKeyProvider,
-} from './access-token-key.provider';
+import { exportJWK, importJWK, type JWK, type JWTPayload } from 'jose';
+import { AccessSigningKey, AccessTokenSigningKeyProvider } from './access-token-key.provider';
 import { assertCryptoTestHooksAllowed } from './crypto-test-hooks';
 import { derToJoseEs256 } from './ecdsa-der-jose';
 import { createKmsClient } from './kms-client.factory';
@@ -50,9 +43,7 @@ export class KmsAccessTokenKeyProvider implements AccessTokenSigningKeyProvider,
 
   private async loadPublic(keyId: string, accept: boolean): Promise<void> {
     try {
-      const out = await this.client.send(
-        new GetPublicKeyCommand({ KeyId: keyId }),
-      );
+      const out = await this.client.send(new GetPublicKeyCommand({ KeyId: keyId }));
       if (!out.PublicKey) throw new Error('GetPublicKey returned empty');
       const spki = Buffer.from(out.PublicKey);
       const pub = createPublicKey({ key: spki, format: 'der', type: 'spki' });
@@ -92,7 +83,6 @@ export class KmsAccessTokenKeyProvider implements AccessTokenSigningKeyProvider,
     // privateKey intentionally absent — callers must use signCompactJwt
     return {
       kid: this.activeKid,
-      privateKey: undefined as unknown as KeyLike,
       publicJwk: { ...row.jwk },
       activeForSigning: true,
       acceptForVerify: true,
@@ -116,15 +106,16 @@ export class KmsAccessTokenKeyProvider implements AccessTokenSigningKeyProvider,
 
   async listVerificationJwks(): Promise<JWK[]> {
     await this.ensureReady();
-    return [...this.publicByKid.values()]
-      .filter((r) => r.accept)
-      .map((r) => ({ ...r.jwk }));
+    return [...this.publicByKid.values()].filter((r) => r.accept).map((r) => ({ ...r.jwk }));
   }
 
   /**
    * Sign compact JWT via KMS Sign (ECDSA_SHA_256) + DER→JOSE conversion.
    */
-  async signCompactJwt(payload: JWTPayload, headerExtra?: Record<string, unknown>): Promise<string> {
+  async signCompactJwt(
+    payload: JWTPayload,
+    headerExtra?: Record<string, unknown>,
+  ): Promise<string> {
     await this.ensureReady();
     const row = this.publicByKid.get(this.activeKid);
     if (!row) throw new Error('No active KMS signing key');

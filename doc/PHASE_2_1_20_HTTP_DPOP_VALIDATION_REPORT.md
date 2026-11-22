@@ -6,29 +6,29 @@ NestJS HTTP endpoints were exercised against **real PostgreSQL 16.10** (`dcmp_va
 
 ## Endpoints exercised
 
-| Method | Path | Result coverage |
-|--------|------|-----------------|
-| POST | `/api/v1/auth/login` | PASSED |
-| POST | `/api/v1/auth/refresh` | PASSED (incl. concurrency / fail-closed) |
-| POST | `/api/v1/auth/logout` | PASSED |
-| GET | `/api/v1/auth/me` | PASSED (valid) / denied after logout |
-| POST | `/api/v1/auth/sessions/status` | PASSED (session still active after bad DPoP) |
-| GET | `/api/v1/auth/.well-known/jwks.json` | PASSED |
-| GET | `/api/v1/health/live` | PASSED |
-| GET | `/api/v1/health/ready` | PASSED |
+| Method | Path                                 | Result coverage                              |
+| ------ | ------------------------------------ | -------------------------------------------- |
+| POST   | `/api/v1/auth/login`                 | PASSED                                       |
+| POST   | `/api/v1/auth/refresh`               | PASSED (incl. concurrency / fail-closed)     |
+| POST   | `/api/v1/auth/logout`                | PASSED                                       |
+| GET    | `/api/v1/auth/me`                    | PASSED (valid) / denied after logout         |
+| POST   | `/api/v1/auth/sessions/status`       | PASSED (session still active after bad DPoP) |
+| GET    | `/api/v1/auth/.well-known/jwks.json` | PASSED                                       |
+| GET    | `/api/v1/health/live`                | PASSED                                       |
+| GET    | `/api/v1/health/ready`               | PASSED                                       |
 
 ## DPoP / auth cases
 
-| Test ID | Scenario | Result |
-|---------|----------|--------|
-| DB-SEC-018 | Valid login + JWKS + me with DPoP AT | PASSED |
-| DB-SEC-019 | Invalid DPoP signature; session not revoked | PASSED |
-| DB-SEC-028 | Reused JTI rejected (Redis SET NX) | PASSED |
-| DB-SEC-021 | Logout then `/me` denied | PASSED |
-| DB-SEC-ORG-HDR | Spoofed `x-organization-id` → 403 | PASSED |
-| DB-SEC-DPOP-HTM | Wrong `htm` | PASSED |
-| DB-SEC-DPOP-KEY | Wrong DPoP key | PASSED |
-| DB-SEC-REDIS-203 | Redis down → 503 fail-closed | PASSED |
+| Test ID          | Scenario                                    | Result |
+| ---------------- | ------------------------------------------- | ------ |
+| DB-SEC-018       | Valid login + JWKS + me with DPoP AT        | PASSED |
+| DB-SEC-019       | Invalid DPoP signature; session not revoked | PASSED |
+| DB-SEC-028       | Reused JTI rejected (Redis SET NX)          | PASSED |
+| DB-SEC-021       | Logout then `/me` denied                    | PASSED |
+| DB-SEC-ORG-HDR   | Spoofed `x-organization-id` → 403           | PASSED |
+| DB-SEC-DPOP-HTM  | Wrong `htm`                                 | PASSED |
+| DB-SEC-DPOP-KEY  | Wrong DPoP key                              | PASSED |
+| DB-SEC-REDIS-203 | Redis down → 503 fail-closed                | PASSED |
 
 ## Security model
 

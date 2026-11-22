@@ -39,12 +39,10 @@ describe('Phase 2.1.15 Auth Gateway + DPoP', () => {
     app = moduleRef.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-    const { ResponseTransformInterceptor } = await import(
-      '../../../common/interceptors/response.interceptor'
-    );
-    const { GlobalHttpExceptionFilter } = await import(
-      '../../../common/filters/http-exception.filter'
-    );
+    const { ResponseTransformInterceptor } =
+      await import('../../../common/interceptors/response.interceptor');
+    const { GlobalHttpExceptionFilter } =
+      await import('../../../common/filters/http-exception.filter');
     app.useGlobalInterceptors(new ResponseTransformInterceptor());
     app.useGlobalFilters(new GlobalHttpExceptionFilter());
     await app.init();
@@ -118,9 +116,13 @@ describe('Phase 2.1.15 Auth Gateway + DPoP', () => {
       res.status === 200 || res.status === 201,
       `login status ${res.status} ${JSON.stringify(res.json)}`,
     );
-    const data = (res.json as { data?: { tokens: { refreshToken: string; accessToken: string } } }).data
-      || (res.json as { tokens: { refreshToken: string; accessToken: string }; user: unknown });
-    const tokens = 'tokens' in data ? data.tokens : (data as { tokens: { refreshToken: string; accessToken: string } }).tokens;
+    const data =
+      (res.json as { data?: { tokens: { refreshToken: string; accessToken: string } } }).data ||
+      (res.json as { tokens: { refreshToken: string; accessToken: string }; user: unknown });
+    const tokens =
+      'tokens' in data
+        ? data.tokens
+        : (data as { tokens: { refreshToken: string; accessToken: string } }).tokens;
     assert.ok(tokens?.refreshToken);
     return { tokens, nonce: res.nonce!, privateJwk, jkt };
   }
@@ -160,7 +162,10 @@ describe('Phase 2.1.15 Auth Gateway + DPoP', () => {
       dpopJkt: 'jkt-test',
       expiresAt: new Date(Date.now() + 60_000),
     };
-    const blob = await cipher.encrypt({ accessToken: 'a', refreshToken: 'r', expiresIn: 900 }, fields);
+    const blob = await cipher.encrypt(
+      { accessToken: 'a', refreshToken: 'r', expiresIn: 900 },
+      fields,
+    );
     assert.equal(blob.iv.length, 12);
     assert.equal(blob.authTag.length, 16);
 
@@ -184,7 +189,10 @@ describe('Phase 2.1.15 Auth Gateway + DPoP', () => {
       }),
     );
 
-    const expired = await cipher.encrypt({ accessToken: 'a' }, { ...fields, expiresAt: new Date(Date.now() - 1000) });
+    const expired = await cipher.encrypt(
+      { accessToken: 'a' },
+      { ...fields, expiresAt: new Date(Date.now() - 1000) },
+    );
     await assert.rejects(() =>
       cipher.decrypt(expired, { ...fields, expiresAt: expired.expiresAt }),
     );
@@ -211,7 +219,10 @@ describe('Phase 2.1.15 Auth Gateway + DPoP', () => {
       body: { refreshToken: session.tokens.refreshToken },
     });
     assert.equal(res.status, 200, JSON.stringify(res.json));
-    const body = res.json as { data?: { tokens: { refreshToken: string } }; tokens?: { refreshToken: string } };
+    const body = res.json as {
+      data?: { tokens: { refreshToken: string } };
+      tokens?: { refreshToken: string };
+    };
     const tokens = body.data?.tokens || body.tokens;
     assert.ok(tokens?.refreshToken);
     assert.notEqual(tokens!.refreshToken, session.tokens.refreshToken);
@@ -237,8 +248,9 @@ describe('Phase 2.1.15 Auth Gateway + DPoP', () => {
     });
     // status endpoint does not require DPoP in this phase
     assert.equal(status.status, 200);
-    const active = (status.json as { data?: { active: boolean }; active?: boolean }).data?.active
-      ?? (status.json as { active: boolean }).active;
+    const active =
+      (status.json as { data?: { active: boolean }; active?: boolean }).data?.active ??
+      (status.json as { active: boolean }).active;
     assert.equal(active, true);
     assert.ok(audit.events.some((e) => e.category === 'DPOP_FAILURE'));
   });
@@ -290,8 +302,10 @@ describe('Phase 2.1.15 Auth Gateway + DPoP', () => {
       body: { refreshToken: session.tokens.refreshToken },
     });
     assert.equal(r1.status, 200, JSON.stringify(r1.json));
-    const t1 = ((r1.json as { data?: { tokens: { refreshToken: string } } }).data?.tokens
-      || (r1.json as { tokens: { refreshToken: string } }).tokens).refreshToken;
+    const t1 = (
+      (r1.json as { data?: { tokens: { refreshToken: string } } }).data?.tokens ||
+      (r1.json as { tokens: { refreshToken: string } }).tokens
+    ).refreshToken;
 
     // Identical proof retry (same jti/nonce/sig) — recovery path before JTI reject
     const r2 = await http('POST', '/api/v1/auth/refresh', {
@@ -299,8 +313,10 @@ describe('Phase 2.1.15 Auth Gateway + DPoP', () => {
       body: { refreshToken: session.tokens.refreshToken },
     });
     assert.equal(r2.status, 200, JSON.stringify(r2.json));
-    const t2 = ((r2.json as { data?: { tokens: { refreshToken: string } } }).data?.tokens
-      || (r2.json as { tokens: { refreshToken: string } }).tokens).refreshToken;
+    const t2 = (
+      (r2.json as { data?: { tokens: { refreshToken: string } } }).data?.tokens ||
+      (r2.json as { tokens: { refreshToken: string } }).tokens
+    ).refreshToken;
     assert.equal(t1, t2);
   });
 
@@ -423,8 +439,10 @@ describe('Phase 2.1.15 Auth Gateway + DPoP', () => {
 
     // New rotation attempt with SAME jti but different nonce/sig path after first consumed token
     // Use new refresh token from r1 with same jti → should hit replay on non-recovery
-    const newRefresh = ((r1.json as { data?: { tokens: { refreshToken: string } } }).data?.tokens
-      || (r1.json as { tokens: { refreshToken: string } }).tokens).refreshToken;
+    const newRefresh = (
+      (r1.json as { data?: { tokens: { refreshToken: string } } }).data?.tokens ||
+      (r1.json as { tokens: { refreshToken: string } }).tokens
+    ).refreshToken;
     const p2 = await mintTestDpopProof({
       method: 'POST',
       htu,

@@ -18,13 +18,24 @@ export const AuthErrors = {
   dpopClaims: (message = 'Invalid DPoP claims') =>
     new AuthHttpException(ERROR_CODES.INVALID_DPOP_CLAIMS, message),
   dpopExpired: () =>
-    new AuthHttpException(ERROR_CODES.DPOP_PROOF_EXPIRED, 'DPoP proof is outside the accepted time window'),
+    new AuthHttpException(
+      ERROR_CODES.DPOP_PROOF_EXPIRED,
+      'DPoP proof is outside the accepted time window',
+    ),
   dpopReplay: () =>
-    new AuthHttpException(ERROR_CODES.DPOP_PROOF_REPLAY_DETECTED, 'DPoP proof jti has already been used'),
+    new AuthHttpException(
+      ERROR_CODES.DPOP_PROOF_REPLAY_DETECTED,
+      'DPoP proof jti has already been used',
+    ),
   useNonce: (nonce: string) =>
-    new AuthHttpException(ERROR_CODES.USE_DPOP_NONCE, 'A fresh DPoP nonce is required', HttpStatus.UNAUTHORIZED, {
-      dpopNonce: nonce,
-    }),
+    new AuthHttpException(
+      ERROR_CODES.USE_DPOP_NONCE,
+      'A fresh DPoP nonce is required',
+      HttpStatus.UNAUTHORIZED,
+      {
+        dpopNonce: nonce,
+      },
+    ),
   replayStoreUnavailable: () =>
     new AuthHttpException(
       ERROR_CODES.DPOP_REPLAY_STORE_UNAVAILABLE,
@@ -38,13 +49,20 @@ export const AuthErrors = {
       HttpStatus.SERVICE_UNAVAILABLE,
     ),
   tokenReuse: () =>
-    new AuthHttpException(ERROR_CODES.TOKEN_REUSE_DETECTED, 'Refresh token reuse detected; session revoked'),
+    new AuthHttpException(
+      ERROR_CODES.TOKEN_REUSE_DETECTED,
+      'Refresh token reuse detected; session revoked',
+    ),
   sessionRevoked: () =>
     new AuthHttpException(ERROR_CODES.SESSION_REVOKED, 'Session is revoked or inactive'),
   unauthenticated: (message = 'Authentication required') =>
     new AuthHttpException(ERROR_CODES.UNAUTHENTICATED, message),
   tenantMismatch: () =>
-    new AuthHttpException(ERROR_CODES.TENANT_MISMATCH, 'Cross-tenant session use denied', HttpStatus.FORBIDDEN),
+    new AuthHttpException(
+      ERROR_CODES.TENANT_MISMATCH,
+      'Cross-tenant session use denied',
+      HttpStatus.FORBIDDEN,
+    ),
   loginOrganizationRequired: () =>
     new AuthHttpException(
       ERROR_CODES.LOGIN_ORGANIZATION_REQUIRED,

@@ -60,10 +60,9 @@ export class ValidationPgPool implements OnModuleDestroy {
     return this.withAppClient(async (client) => {
       await client.query('BEGIN');
       try {
-        await client.query(
-          `SELECT set_config('app.current_organization_id', $1, true)`,
-          [organizationId],
-        );
+        await client.query(`SELECT set_config('app.current_organization_id', $1, true)`, [
+          organizationId,
+        ]);
         const result = await fn(client);
         await client.query('COMMIT');
         return result;

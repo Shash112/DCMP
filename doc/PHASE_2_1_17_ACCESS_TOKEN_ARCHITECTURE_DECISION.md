@@ -8,11 +8,11 @@
 
 ## 1. Options compared
 
-| Option | Signing | Sender constraint | Key mgmt | Fit for DCMP |
-| ------ | ------- | ----------------- | -------- | ------------ |
-| **A. HS256 Bearer** (current scaffold) | Shared secret | None — stolen token works | Secret distribution hard; rotation weak | Reject for production |
-| **B. ES256 asymmetric + JWKS** | Server EC P-256 | None unless added | JWKS + `kid` rotation | Stronger than A but still bearer-stealable |
-| **C. ES256 + DPoP `cnf.jkt`** (RFC 9449) | Server ES256 | Proof must match `cnf.jkt`; `ath` binds proof to AT | Same as B + client keypair | **Selected** |
+| Option                                   | Signing         | Sender constraint                                   | Key mgmt                                | Fit for DCMP                               |
+| ---------------------------------------- | --------------- | --------------------------------------------------- | --------------------------------------- | ------------------------------------------ |
+| **A. HS256 Bearer** (current scaffold)   | Shared secret   | None — stolen token works                           | Secret distribution hard; rotation weak | Reject for production                      |
+| **B. ES256 asymmetric + JWKS**           | Server EC P-256 | None unless added                                   | JWKS + `kid` rotation                   | Stronger than A but still bearer-stealable |
+| **C. ES256 + DPoP `cnf.jkt`** (RFC 9449) | Server ES256    | Proof must match `cnf.jkt`; `ath` binds proof to AT | Same as B + client keypair              | **Selected**                               |
 
 ---
 
@@ -54,13 +54,13 @@ Refresh **re-binds** the same session `dpop_jkt`; new access tokens carry the sa
 
 ## 4. JWKS publication and key identification
 
-| Item | Decision |
-| ---- | -------- |
-| Endpoint | `GET /api/v1/auth/.well-known/jwks.json` (and alias if needed) |
-| Contents | Public EC P-256 JWKs only (`kty`,`crv`,`x`,`y`,`kid`,`use`,`alg`) |
-| `kid` | Stable opaque id per key version (e.g. `access-es256:v1`) |
-| Private keys | Never in JWKS, logs, or responses |
-| Verification | Resource servers load JWKS (in-process provider for monolith) |
+| Item         | Decision                                                          |
+| ------------ | ----------------------------------------------------------------- |
+| Endpoint     | `GET /api/v1/auth/.well-known/jwks.json` (and alias if needed)    |
+| Contents     | Public EC P-256 JWKs only (`kty`,`crv`,`x`,`y`,`kid`,`use`,`alg`) |
+| `kid`        | Stable opaque id per key version (e.g. `access-es256:v1`)         |
+| Private keys | Never in JWKS, logs, or responses                                 |
+| Verification | Resource servers load JWKS (in-process provider for monolith)     |
 
 ---
 
@@ -76,10 +76,10 @@ Refresh **re-binds** the same session `dpop_jkt`; new access tokens carry the sa
 
 ## 6. Issuer and audience
 
-| Claim | Value (validation / configurable) |
-| ----- | --------------------------------- |
+| Claim | Value (validation / configurable)                               |
+| ----- | --------------------------------------------------------------- |
 | `iss` | `https://auth.dcmp.local` (override `DCMP_ACCESS_TOKEN_ISSUER`) |
-| `aud` | `dcmp-api` (override `DCMP_ACCESS_TOKEN_AUDIENCE`) |
+| `aud` | `dcmp-api` (override `DCMP_ACCESS_TOKEN_AUDIENCE`)              |
 
 Strict match on verify. Production must set non-local issuer via config/secrets — never hardcode production private keys.
 
@@ -87,11 +87,11 @@ Strict match on verify. Production must set non-local issuer via config/secrets 
 
 ## 7. Token type and Authorization scheme
 
-| Surface | Value |
-| ------- | ----- |
-| Token response `tokenType` / `token_type` | `DPoP` |
-| Protected `Authorization` | `DPoP <access_token>` |
-| Legacy `Bearer` | **Rejected** on protected routes after this phase |
+| Surface                                   | Value                                             |
+| ----------------------------------------- | ------------------------------------------------- |
+| Token response `tokenType` / `token_type` | `DPoP`                                            |
+| Protected `Authorization`                 | `DPoP <access_token>`                             |
+| Legacy `Bearer`                           | **Rejected** on protected routes after this phase |
 
 ---
 
@@ -120,12 +120,12 @@ Flutter code is **not** modified in 2.1.17 unless a focused compatibility harnes
 
 ## 10. Token revocation
 
-| Mechanism | Role |
-| --------- | ---- |
-| Short AT TTL (≤ 15 minutes) | Limits stolen-token window |
-| PostgreSQL session revoke (logout / reuse) | **Authoritative** — introspection fails |
-| Redis `sid` denylist | Optional non-authoritative; must not replace PG |
-| Refresh idempotency invalidation | Blocks credential recovery |
+| Mechanism                                  | Role                                            |
+| ------------------------------------------ | ----------------------------------------------- |
+| Short AT TTL (≤ 15 minutes)                | Limits stolen-token window                      |
+| PostgreSQL session revoke (logout / reuse) | **Authoritative** — introspection fails         |
+| Redis `sid` denylist                       | Optional non-authoritative; must not replace PG |
+| Refresh idempotency invalidation           | Blocks credential recovery                      |
 
 JWT signature alone is **insufficient**.
 
@@ -165,10 +165,10 @@ Email uniqueness in the validation schema is **organization-scoped** (composite)
 
 ## 14. Production key management
 
-| Provider | Status |
-| -------- | ------ |
-| `AccessTokenSigningKeyProvider` interface | Required |
-| `LocalAccessTokenKeyProvider` (ES256 test keys) | Implemented for validation |
-| AWS KMS / Secrets Manager | Interface only — **NOT RUN** |
+| Provider                                        | Status                       |
+| ----------------------------------------------- | ---------------------------- |
+| `AccessTokenSigningKeyProvider` interface       | Required                     |
+| `LocalAccessTokenKeyProvider` (ES256 test keys) | Implemented for validation   |
+| AWS KMS / Secrets Manager                       | Interface only — **NOT RUN** |
 
 Production refuses local provider unless explicitly allowed (same pattern as refresh cipher).

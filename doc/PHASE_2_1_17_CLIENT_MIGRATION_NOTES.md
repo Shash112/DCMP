@@ -4,13 +4,13 @@
 
 ## What changed
 
-| Item | Before | After |
-| ---- | ------ | ----- |
-| Access-token alg | HS256 | **ES256** (`kid` in header) |
-| `tokenType` | `Bearer` | **`DPoP`** |
-| Authorization | `Bearer <AT>` | **`DPoP <AT>`** |
-| Protected proof | Not required for `/me` | **DPoP header required** with `ath` |
-| Claims | no iss/aud/cnf | **`iss`, `aud`, `cnf.jkt`, `jti`, `nbf`, `sid`, `orgId`** |
+| Item             | Before                 | After                                                     |
+| ---------------- | ---------------------- | --------------------------------------------------------- |
+| Access-token alg | HS256                  | **ES256** (`kid` in header)                               |
+| `tokenType`      | `Bearer`               | **`DPoP`**                                                |
+| Authorization    | `Bearer <AT>`          | **`DPoP <AT>`**                                           |
+| Protected proof  | Not required for `/me` | **DPoP header required** with `ath`                       |
+| Claims           | no iss/aud/cnf         | **`iss`, `aud`, `cnf.jkt`, `jti`, `nbf`, `sid`, `orgId`** |
 
 ## Flutter / mobile
 

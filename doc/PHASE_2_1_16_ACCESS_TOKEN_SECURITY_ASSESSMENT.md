@@ -8,19 +8,19 @@
 
 ## 1. Current scaffold
 
-| Claim / property | Current behavior |
-| ---------------- | ---------------- |
-| Algorithm | **HS256** (symmetric) |
-| Issuer (`iss`) | **Not set** |
-| Audience (`aud`) | **Not set** |
-| Subject (`sub`) | User id |
-| Organization | Custom claim `orgId` |
-| Session | Custom claim `sid` |
-| Roles | Custom claim `roles[]` |
-| Type | Custom claim `type: 'access'` |
-| Issued-at / expiry | `iat` + `exp` via jose (`15m` default) |
-| DPoP confirmation | **`cnf.jkt` not present** |
-| Signing key | `JWT_ACCESS_SECRET` / config; refuses `dev_` prefix when `NODE_ENV=production` |
+| Claim / property   | Current behavior                                                               |
+| ------------------ | ------------------------------------------------------------------------------ |
+| Algorithm          | **HS256** (symmetric)                                                          |
+| Issuer (`iss`)     | **Not set**                                                                    |
+| Audience (`aud`)   | **Not set**                                                                    |
+| Subject (`sub`)    | User id                                                                        |
+| Organization       | Custom claim `orgId`                                                           |
+| Session            | Custom claim `sid`                                                             |
+| Roles              | Custom claim `roles[]`                                                         |
+| Type               | Custom claim `type: 'access'`                                                  |
+| Issued-at / expiry | `iat` + `exp` via jose (`15m` default)                                         |
+| DPoP confirmation  | **`cnf.jkt` not present**                                                      |
+| Signing key        | `JWT_ACCESS_SECRET` / config; refuses `dev_` prefix when `NODE_ENV=production` |
 
 Token type returned to clients remains `Bearer` (API contract from Phase 2.1.15).
 
@@ -40,15 +40,15 @@ The current HS256 Bearer scaffold is a **compatibility placeholder** for `/auth/
 
 ## 3. Verification requirements (target)
 
-| Check | Required |
-| ----- | -------- |
-| Signature / JWKS | Yes |
-| `iss` / `aud` | Yes (fixed platform values) |
-| `exp` / `nbf` / clock skew | Yes |
-| `sub` + `orgId` + `sid` | Yes; org must match verified session |
-| `cnf.jkt` | Yes when adopting DPoP-bound access tokens |
-| Request DPoP | Yes on protected mutating/read APIs that hold sensitive data |
-| Revocation | Session revocation must invalidate access use (short TTL + `sid` denylist or introspection) |
+| Check                      | Required                                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------------- |
+| Signature / JWKS           | Yes                                                                                         |
+| `iss` / `aud`              | Yes (fixed platform values)                                                                 |
+| `exp` / `nbf` / clock skew | Yes                                                                                         |
+| `sub` + `orgId` + `sid`    | Yes; org must match verified session                                                        |
+| `cnf.jkt`                  | Yes when adopting DPoP-bound access tokens                                                  |
+| Request DPoP               | Yes on protected mutating/read APIs that hold sensitive data                                |
+| Revocation                 | Session revocation must invalidate access use (short TTL + `sid` denylist or introspection) |
 
 ---
 
@@ -74,11 +74,11 @@ Introducing `cnf.jkt`, `iss`/`aud`, or switching to ES256 / `DPoP` token type wo
 
 ## 6. Residual risk
 
-| Risk | Severity | Status |
-| ---- | -------- | ------ |
-| Shared HS256 secret compromise | High (prod if misconfigured) | Mitigated by production secret refusal; still scaffold |
-| Access token not sender-constrained | High for bearer theft | **Open** — documented, not fixed this phase |
-| Missing iss/aud | Medium | Open |
-| No session introspection on `/me` | Medium | `/me` verifies JWT only |
+| Risk                                | Severity                     | Status                                                 |
+| ----------------------------------- | ---------------------------- | ------------------------------------------------------ |
+| Shared HS256 secret compromise      | High (prod if misconfigured) | Mitigated by production secret refusal; still scaffold |
+| Access token not sender-constrained | High for bearer theft        | **Open** — documented, not fixed this phase            |
+| Missing iss/aud                     | Medium                       | Open                                                   |
+| No session introspection on `/me`   | Medium                       | `/me` verifies JWT only                                |
 
 ---

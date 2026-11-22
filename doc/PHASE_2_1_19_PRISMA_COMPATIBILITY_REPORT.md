@@ -10,15 +10,15 @@
 
 ## 1. Actions performed
 
-| Step | Result |
-| ---- | ------ |
-| `prisma db pull` (introspection) | Succeeded (64 models incl. validation `_db_sec_results`, then excluded) |
-| Manual fixes for composite 1:1 relations | Added DB + Prisma `@@unique([organization_id, …])` |
-| Multi-file split (63 models / 7 domain files) | Succeeded |
-| `prisma validate` | **PASSED** |
-| `prisma generate` | **PASSED** |
-| Read-only smoke (`compat_smoke.cjs`) | **PASSED** (count orgs/users; sample templates) |
-| `prisma db push` | **Not used** |
+| Step                                          | Result                                                                  |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| `prisma db pull` (introspection)              | Succeeded (64 models incl. validation `_db_sec_results`, then excluded) |
+| Manual fixes for composite 1:1 relations      | Added DB + Prisma `@@unique([organization_id, …])`                      |
+| Multi-file split (63 models / 7 domain files) | Succeeded                                                               |
+| `prisma validate`                             | **PASSED**                                                              |
+| `prisma generate`                             | **PASSED**                                                              |
+| Read-only smoke (`compat_smoke.cjs`)          | **PASSED** (count orgs/users; sample templates)                         |
+| `prisma db push`                              | **Not used**                                                            |
 
 ---
 
@@ -40,14 +40,14 @@ packages/database/prisma/
 
 ## 3. Constructs Prisma cannot fully represent (SQL remains source of truth)
 
-| Construct | Notes |
-| --------- | ----- |
-| FORCE / RLS policies | Warning on introspect; Client does not set tenant GUC |
-| CHECK constraints | Documented unsupported in Client migrations |
-| DEFERRABLE FK (`fk_token_replaced_by`) | Not fully supported |
-| SECURITY DEFINER functions | SQL-managed (`dcmp_security.*`) |
-| Triggers (audit immutability, org lifecycle, idempotency) | SQL-managed |
-| Partial privileges / column grants | SQL-managed |
+| Construct                                                 | Notes                                                 |
+| --------------------------------------------------------- | ----------------------------------------------------- |
+| FORCE / RLS policies                                      | Warning on introspect; Client does not set tenant GUC |
+| CHECK constraints                                         | Documented unsupported in Client migrations           |
+| DEFERRABLE FK (`fk_token_replaced_by`)                    | Not fully supported                                   |
+| SECURITY DEFINER functions                                | SQL-managed (`dcmp_security.*`)                       |
+| Triggers (audit immutability, org lifecycle, idempotency) | SQL-managed                                           |
+| Partial privileges / column grants                        | SQL-managed                                           |
 
 Application code must continue to use transaction-local `SET LOCAL app.current_organization_id` (and SSA open for platform admin) regardless of Prisma.
 

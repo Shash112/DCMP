@@ -62,7 +62,13 @@ export class AuthController {
   @ApiHeader({ name: HTTP_HEADERS.DPOP, required: true })
   async login(
     @Body() body: LoginDto,
-    @Req() req: { method: string; originalUrl: string; protocol: string; headers: Record<string, string | string[] | undefined> },
+    @Req()
+    req: {
+      method: string;
+      originalUrl: string;
+      protocol: string;
+      headers: Record<string, string | string[] | undefined>;
+    },
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
@@ -81,7 +87,13 @@ export class AuthController {
   async refresh(
     @Body() body: RefreshDto,
     @Headers(HTTP_HEADERS.ORGANIZATION_ID) orgHeader: string | undefined,
-    @Req() req: { method: string; originalUrl: string; protocol: string; headers: Record<string, string | string[] | undefined> },
+    @Req()
+    req: {
+      method: string;
+      originalUrl: string;
+      protocol: string;
+      headers: Record<string, string | string[] | undefined>;
+    },
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
@@ -98,7 +110,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Revoke session and invalidate idempotency recovery' })
   async logout(
     @Body() body: LogoutDto,
-    @Req() req: { method: string; originalUrl: string; protocol: string; headers: Record<string, string | string[] | undefined> },
+    @Req()
+    req: {
+      method: string;
+      originalUrl: string;
+      protocol: string;
+      headers: Record<string, string | string[] | undefined>;
+    },
   ) {
     await this.auth.logout(body.refreshToken, this.binding(req));
     return { revoked: true };
@@ -107,7 +125,11 @@ export class AuthController {
   @Get('me')
   @UseGuards(DpopBoundAuthGuard)
   @ApiOperation({ summary: 'Current subject — requires DPoP-bound access token + live session' })
-  @ApiHeader({ name: HTTP_HEADERS.AUTHORIZATION, required: true, description: 'DPoP <access_token>' })
+  @ApiHeader({
+    name: HTTP_HEADERS.AUTHORIZATION,
+    required: true,
+    description: 'DPoP <access_token>',
+  })
   @ApiHeader({ name: HTTP_HEADERS.DPOP, required: true })
   async me(@Req() req: TenantRequest) {
     if (!req.verifiedAuth) throw AuthErrors.unauthenticated();

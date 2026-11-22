@@ -32,60 +32,60 @@ FK, RLS, and tenant isolation were **not** weakened.
 
 ## Files changed
 
-| Path | Change |
-|------|--------|
-| `apps/backend/src/modules/auth/crypto/kms-refresh-envelope.provider.ts` | Post-Decrypt wrapping-key allowlist |
-| `apps/backend/src/modules/auth/auth.service.ts` | Map refresh encrypt `KMS_UNAVAILABLE` → 503 before rotate |
-| `apps/backend/src/modules/auth/__tests__/phase-2.1.23-persistence-rotation.integration.spec.ts` | **NEW** live persist + allowlist suite |
-| `apps/backend/src/modules/auth/__tests__/multi-key-rotation.unit.spec.ts` | **NEW** local ES256 rotation + config parse |
-| `apps/backend/src/modules/auth/__tests__/phase-2.1.22-live-kms.integration.spec.ts` | Clarify refresh verify-list semantics |
-| `apps/backend/package.json` | `test:auth:kms:persist`; expand `test:auth:kms-unit` |
-| `.env.example` | Documented KMS placeholders (required vs optional) |
-| `doc/PHASE_2_1_23_MULTI_KEY_PROVISIONING_PLAN.md` | **NEW** — awaiting CreateKey approval |
-| `doc/PHASE_2_1_23_KMS_ROTATION_AND_PERSISTENCE_REPORT.md` | **NEW** this report |
+| Path                                                                                            | Change                                                    |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `apps/backend/src/modules/auth/crypto/kms-refresh-envelope.provider.ts`                         | Post-Decrypt wrapping-key allowlist                       |
+| `apps/backend/src/modules/auth/auth.service.ts`                                                 | Map refresh encrypt `KMS_UNAVAILABLE` → 503 before rotate |
+| `apps/backend/src/modules/auth/__tests__/phase-2.1.23-persistence-rotation.integration.spec.ts` | **NEW** live persist + allowlist suite                    |
+| `apps/backend/src/modules/auth/__tests__/multi-key-rotation.unit.spec.ts`                       | **NEW** local ES256 rotation + config parse               |
+| `apps/backend/src/modules/auth/__tests__/phase-2.1.22-live-kms.integration.spec.ts`             | Clarify refresh verify-list semantics                     |
+| `apps/backend/package.json`                                                                     | `test:auth:kms:persist`; expand `test:auth:kms-unit`      |
+| `.env.example`                                                                                  | Documented KMS placeholders (required vs optional)        |
+| `doc/PHASE_2_1_23_MULTI_KEY_PROVISIONING_PLAN.md`                                               | **NEW** — awaiting CreateKey approval                     |
+| `doc/PHASE_2_1_23_KMS_ROTATION_AND_PERSISTENCE_REPORT.md`                                       | **NEW** this report                                       |
 
 Evidence: `infrastructure/database-validation/evidence/phase-2.1.23/`
 
 ## Tests
 
-| Suite | Result |
-|-------|--------|
-| `npm run test:auth:kms-unit` | **10 PASSED** (DI, DER, multi-key doubles, config) |
-| `npm run test:auth:kms:persist` | **4 PASSED** |
-| `npm run test:auth:kms` (2.1.22 regression) | **6 PASSED** |
-| `npm run test:auth:memory` | **12 PASSED** |
-| `npm run test:auth:postgres` | **14 PASSED** |
-| `npm run test:auth:access` | **16 PASSED** |
-| `npm run test:auth:redis` | **16 PASSED** |
+| Suite                                       | Result                                             |
+| ------------------------------------------- | -------------------------------------------------- |
+| `npm run test:auth:kms-unit`                | **10 PASSED** (DI, DER, multi-key doubles, config) |
+| `npm run test:auth:kms:persist`             | **4 PASSED**                                       |
+| `npm run test:auth:kms` (2.1.22 regression) | **6 PASSED**                                       |
+| `npm run test:auth:memory`                  | **12 PASSED**                                      |
+| `npm run test:auth:postgres`                | **14 PASSED**                                      |
+| `npm run test:auth:access`                  | **16 PASSED**                                      |
+| `npm run test:auth:redis`                   | **16 PASSED**                                      |
 
 ### Phase 2.1.23 case IDs
 
-| Test ID | Status | Notes |
-|---------|--------|-------|
-| DB-SEC-KMS-PERSIST-01 | **PASSED** | FK session → `encrypted_data_key` INSERT + SELECT + decrypt + idempotent retry |
-| DB-SEC-KMS-PERSIST-02 | **PASSED** | Encrypt fail → 503; no new idempotency row |
-| DB-SEC-KMS-ROTATE-LIVE | **PASSED** (compat only) | Single live ECC; second live key **NOT_RUN** |
-| DB-SEC-KMS-REFRESH-ALLOWLIST | **PASSED** | Active master Decrypt accepted by allowlist |
+| Test ID                      | Status                   | Notes                                                                          |
+| ---------------------------- | ------------------------ | ------------------------------------------------------------------------------ |
+| DB-SEC-KMS-PERSIST-01        | **PASSED**               | FK session → `encrypted_data_key` INSERT + SELECT + decrypt + idempotent retry |
+| DB-SEC-KMS-PERSIST-02        | **PASSED**               | Encrypt fail → 503; no new idempotency row                                     |
+| DB-SEC-KMS-ROTATE-LIVE       | **PASSED** (compat only) | Single live ECC; second live key **NOT_RUN**                                   |
+| DB-SEC-KMS-REFRESH-ALLOWLIST | **PASSED**               | Active master Decrypt accepted by allowlist                                    |
 
 ### Failed / blocked / not run
 
-| Item | Status |
-|------|--------|
-| Live access-token verify with a **prior** ECC key | **NOT_RUN** — no second ECC key; see provisioning plan |
-| Live SSA HMAC verify with a **prior** HMAC key | **NOT_RUN** — no second HMAC key |
-| Live refresh decrypt under a **prior** CMK | **NOT_RUN** — no second refresh CMK / historical ciphertext |
-| CreateKey / Disable / ScheduleKeyDeletion | **NOT_RUN** (forbidden this phase) |
-| Schema migration | **NOT_RUN** (not required) |
+| Item                                              | Status                                                      |
+| ------------------------------------------------- | ----------------------------------------------------------- |
+| Live access-token verify with a **prior** ECC key | **NOT_RUN** — no second ECC key; see provisioning plan      |
+| Live SSA HMAC verify with a **prior** HMAC key    | **NOT_RUN** — no second HMAC key                            |
+| Live refresh decrypt under a **prior** CMK        | **NOT_RUN** — no second refresh CMK / historical ciphertext |
+| CreateKey / Disable / ScheduleKeyDeletion         | **NOT_RUN** (forbidden this phase)                          |
+| Schema migration                                  | **NOT_RUN** (not required)                                  |
 
 ## Rotation compatibility findings
 
-| Mechanism | Behavior |
-|-----------|----------|
-| `DCMP_KMS_ACCESS_TOKEN_KEY_ID` | Active signing key only (`kms:Sign`) |
-| `DCMP_KMS_ACCESS_TOKEN_VERIFY_KEY_IDS` | Loaded into JWKS via `GetPublicKey`; accepted for verify |
-| `DCMP_KMS_SSA_HMAC_KEY_ID` | Active `GenerateMac` |
-| `DCMP_KMS_SSA_HMAC_VERIFY_KEY_IDS` | Tried after active in `VerifyMac` loop |
-| `DCMP_KMS_REFRESH_MASTER_KEY_ID` | Sole `GenerateDataKey` target |
+| Mechanism                                | Behavior                                                                                                                                                                                   |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DCMP_KMS_ACCESS_TOKEN_KEY_ID`           | Active signing key only (`kms:Sign`)                                                                                                                                                       |
+| `DCMP_KMS_ACCESS_TOKEN_VERIFY_KEY_IDS`   | Loaded into JWKS via `GetPublicKey`; accepted for verify                                                                                                                                   |
+| `DCMP_KMS_SSA_HMAC_KEY_ID`               | Active `GenerateMac`                                                                                                                                                                       |
+| `DCMP_KMS_SSA_HMAC_VERIFY_KEY_IDS`       | Tried after active in `VerifyMac` loop                                                                                                                                                     |
+| `DCMP_KMS_REFRESH_MASTER_KEY_ID`         | Sole `GenerateDataKey` target                                                                                                                                                              |
 | `DCMP_KMS_REFRESH_MASTER_VERIFY_KEY_IDS` | **Was unused for crypto selection** (Decrypt uses CiphertextBlob). **Now** soft-allowlists returned `KeyId` after Decrypt (active master always allowed). Empty list ⇒ only active master. |
 
 ### Why REFRESH_MASTER_VERIFY_KEY_IDS was “unused”
@@ -117,12 +117,12 @@ Prior non-prod keys were provisioned outside this phase. Live multi-key rotation
 
 ## Next-phase readiness
 
-| Gate | Status |
-|------|--------|
-| Envelope PG persistence | **Ready** |
-| Encrypt failure atomicity | **Ready** |
-| Multi-key app logic (doubles + config) | **Ready** |
-| Live multi-key AWS proof | **Blocked** — provisioning approval |
-| Production cutover | **Not ready** |
+| Gate                                   | Status                              |
+| -------------------------------------- | ----------------------------------- |
+| Envelope PG persistence                | **Ready**                           |
+| Encrypt failure atomicity              | **Ready**                           |
+| Multi-key app logic (doubles + config) | **Ready**                           |
+| Live multi-key AWS proof               | **Blocked** — provisioning approval |
+| Production cutover                     | **Not ready**                       |
 
 **Implementation is ready for the next non-prod phase after multi-key provisioning approval (or to proceed on single-key ops with documented rotation-grace limits).**

@@ -6,6 +6,7 @@ import {
   generateKeyPair,
   importJWK,
   jwtVerify,
+  type CryptoKey,
   type JWK,
   type JWTPayload,
 } from 'jose';
@@ -49,7 +50,10 @@ export interface ValidatedDpopProof {
 
 function rejectPrivateMaterial(jwk: JWK): void {
   for (const field of PRIVATE_JWK_FIELDS) {
-    if (Object.prototype.hasOwnProperty.call(jwk, field) && (jwk as Record<string, unknown>)[field] != null) {
+    if (
+      Object.prototype.hasOwnProperty.call(jwk, field) &&
+      (jwk as Record<string, unknown>)[field] != null
+    ) {
       throw AuthErrors.dpopFailed('DPoP jwk must not contain private key material');
     }
   }
@@ -74,7 +78,10 @@ export async function validateDpopProof(input: DpopValidationInput): Promise<Val
 
   let header: Record<string, unknown>;
   try {
-    header = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8')) as Record<string, unknown>;
+    header = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8')) as Record<
+      string,
+      unknown
+    >;
   } catch {
     throw AuthErrors.dpopFailed('Malformed DPoP protected header');
   }

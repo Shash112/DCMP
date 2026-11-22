@@ -14,26 +14,26 @@ No keys were created, disabled, deleted, or policy-modified in this phase. No co
 
 ## 2. AWS account and region (no credentials)
 
-| Item | Value |
-|------|-------|
-| Account | `980921756876` |
-| Region | `ap-south-1` |
-| CLI profile | `dcmp-nonprod` |
-| Identity | `arn:aws:iam::980921756876:user/dcmp-kms-dev` |
-| FarmersWing / prod profile | **Not used** |
+| Item                       | Value                                         |
+| -------------------------- | --------------------------------------------- |
+| Account                    | `980921756876`                                |
+| Region                     | `ap-south-1`                                  |
+| CLI profile                | `dcmp-nonprod`                                |
+| Identity                   | `arn:aws:iam::980921756876:user/dcmp-kms-dev` |
+| FarmersWing / prod profile | **Not used**                                  |
 
 STS `GetCallerIdentity` gated the suite before any Nest bootstrap.
 
 ## 3. Key inventory
 
-| Purpose | Role | Key ID |
-|---------|------|--------|
-| Access-token | Active (original) | `802a81e6-3f7c-4a07-a15b-57b8ab506bfd` |
-| Access-token | Prior (v0) | `0ac837a0-293a-4e81-b280-5843761fea98` |
-| SSA HMAC | Active (original) | `5a88e3e7-0732-466b-8df6-2c9885ddfdaa` |
-| SSA HMAC | Prior (v0) | `1093c006-0546-469f-96d9-5619d4e44460` |
+| Purpose        | Role              | Key ID                                 |
+| -------------- | ----------------- | -------------------------------------- |
+| Access-token   | Active (original) | `802a81e6-3f7c-4a07-a15b-57b8ab506bfd` |
+| Access-token   | Prior (v0)        | `0ac837a0-293a-4e81-b280-5843761fea98` |
+| SSA HMAC       | Active (original) | `5a88e3e7-0732-466b-8df6-2c9885ddfdaa` |
+| SSA HMAC       | Prior (v0)        | `1093c006-0546-469f-96d9-5619d4e44460` |
 | Refresh master | Active (original) | `8287866f-d8be-4c73-8372-aa24b78357d5` |
-| Refresh master | Prior (v0) | `38d7828b-ce36-4e1d-bba3-6c4b79de6223` |
+| Refresh master | Prior (v0)        | `38d7828b-ce36-4e1d-bba3-6c4b79de6223` |
 
 Aliases (owner-provisioned): `alias/dcmp-nonprod-access-token-v0`, `alias/dcmp-nonprod-ssa-hmac-v0`, `alias/dcmp-nonprod-refresh-master-v0`.
 
@@ -41,8 +41,8 @@ Prior IDs were supplied to the test runner via environment variables only (`DCMP
 
 ## 4. Access-token rotation results
 
-| Case | Type | Result |
-|------|------|--------|
+| Case             | Type         | Result     |
+| ---------------- | ------------ | ---------- |
 | DB-SEC-KMS-MK-AT | **Live AWS** | **PASSED** |
 
 Proven:
@@ -57,8 +57,8 @@ Proven:
 
 ## 5. SSA HMAC rotation results
 
-| Case | Type | Result |
-|------|------|--------|
+| Case              | Type                         | Result     |
+| ----------------- | ---------------------------- | ---------- |
 | DB-SEC-KMS-MK-SSA | **Live AWS** + PG SSA tables | **PASSED** |
 
 Proven:
@@ -73,8 +73,8 @@ Proven:
 
 ## 6. Refresh master persisted-envelope rotation results
 
-| Case | Type | Result |
-|------|------|--------|
+| Case                  | Type                                      | Result     |
+| --------------------- | ----------------------------------------- | ---------- |
 | DB-SEC-KMS-MK-REFRESH | **Live AWS** + **PostgreSQL** + HTTP/DPoP | **PASSED** |
 
 Sequence executed:
@@ -92,8 +92,8 @@ No schema changes. FK/RLS/tenant path unchanged.
 
 ## 7. Fail-closed results (Phase 2.1.24)
 
-| Case | Type | Result |
-|------|------|--------|
+| Case                     | Type                 | Result     |
+| ------------------------ | -------------------- | ---------- |
 | DB-SEC-KMS-MK-FAILCLOSED | Live app + injection | **PASSED** |
 
 Phase 2.1.24 multi-key suite verified **fail-closed** behavior only:
@@ -121,16 +121,16 @@ $env:DCMP_KMS_SSA_HMAC_PRIOR_KEY_ID='…'
 $env:DCMP_KMS_REFRESH_MASTER_PRIOR_KEY_ID='…'
 ```
 
-| Command | Classification | Outcome |
-|---------|----------------|---------|
-| `npm run test:auth:kms-unit` | Unit / doubles | **10 PASSED** |
-| `npm run test:auth:kms:multikey` | **Live AWS** + PG + Redis | **4 PASSED** |
-| `npm run test:auth:kms` | Live AWS regression (2.1.22) | **6 PASSED** |
-| `npm run test:auth:kms:persist` | Live AWS + PG (2.1.23) | **4 PASSED** |
-| `npm run test:auth:memory` | In-memory gateway | **12 PASSED** |
-| `npm run test:auth:postgres` | PG integration | **14 PASSED** |
-| `npm run test:auth:access` | PG access-token | **16 PASSED** |
-| `npm run test:auth:redis` | Real Redis HTTP/DPoP/SSA | **16 PASSED** |
+| Command                          | Classification               | Outcome       |
+| -------------------------------- | ---------------------------- | ------------- |
+| `npm run test:auth:kms-unit`     | Unit / doubles               | **10 PASSED** |
+| `npm run test:auth:kms:multikey` | **Live AWS** + PG + Redis    | **4 PASSED**  |
+| `npm run test:auth:kms`          | Live AWS regression (2.1.22) | **6 PASSED**  |
+| `npm run test:auth:kms:persist`  | Live AWS + PG (2.1.23)       | **4 PASSED**  |
+| `npm run test:auth:memory`       | In-memory gateway            | **12 PASSED** |
+| `npm run test:auth:postgres`     | PG integration               | **14 PASSED** |
+| `npm run test:auth:access`       | PG access-token              | **16 PASSED** |
+| `npm run test:auth:redis`        | Real Redis HTTP/DPoP/SSA     | **16 PASSED** |
 
 **Failed:** none  
 **Blocked / not run:** none for required 2.1.24 scenarios  
@@ -138,16 +138,16 @@ Evidence: `infrastructure/database-validation/evidence/phase-2.1.24/` (no secret
 
 ## 9. Files changed (this phase)
 
-| Path | Change |
-|------|--------|
-| `apps/backend/src/modules/auth/crypto/ssa-signing.provider.ts` | `setActiveHmacKeyIdForTest` for live rotation drills |
-| `apps/backend/src/modules/auth/crypto/kms-refresh-envelope.provider.ts` | `setActiveMasterKeyIdForTest` / `activeMasterKeyIdForTest` |
-| `apps/backend/src/modules/auth/__tests__/set-kms-multikey-env.ts` | **NEW** — multikey env (prior IDs from env only) |
-| `apps/backend/src/modules/auth/__tests__/phase-2.1.24-live-multikey-rotation.integration.spec.ts` | **NEW** live suite |
-| `apps/backend/package.json` | `test:auth:kms:multikey` |
-| `doc/PHASE_2_1_24_LIVE_MULTI_KEY_ROTATION_REPORT.md` | **NEW** this report |
-| `doc/PHASE_2_1_23_KMS_ROTATION_AND_PERSISTENCE_REPORT.md` | Addendum only (provisioning completed externally) |
-| `doc/PHASE_2_1_23_MULTI_KEY_PROVISIONING_PLAN.md` | Addendum only |
+| Path                                                                                              | Change                                                     |
+| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `apps/backend/src/modules/auth/crypto/ssa-signing.provider.ts`                                    | `setActiveHmacKeyIdForTest` for live rotation drills       |
+| `apps/backend/src/modules/auth/crypto/kms-refresh-envelope.provider.ts`                           | `setActiveMasterKeyIdForTest` / `activeMasterKeyIdForTest` |
+| `apps/backend/src/modules/auth/__tests__/set-kms-multikey-env.ts`                                 | **NEW** — multikey env (prior IDs from env only)           |
+| `apps/backend/src/modules/auth/__tests__/phase-2.1.24-live-multikey-rotation.integration.spec.ts` | **NEW** live suite                                         |
+| `apps/backend/package.json`                                                                       | `test:auth:kms:multikey`                                   |
+| `doc/PHASE_2_1_24_LIVE_MULTI_KEY_ROTATION_REPORT.md`                                              | **NEW** this report                                        |
+| `doc/PHASE_2_1_23_KMS_ROTATION_AND_PERSISTENCE_REPORT.md`                                         | Addendum only (provisioning completed externally)          |
+| `doc/PHASE_2_1_23_MULTI_KEY_PROVISIONING_PLAN.md`                                                 | Addendum only                                              |
 
 ## 10. Database changes
 
@@ -155,14 +155,14 @@ Evidence: `infrastructure/database-validation/evidence/phase-2.1.24/` (no secret
 
 ## 11. Remaining gaps and production-readiness
 
-| Gate | Status |
-|------|--------|
-| Live multi-key rotation (non-prod) | **Ready** |
-| Automated CI with prior keys | Not wired (local env vars required) |
-| Production KMS account / keys | **Not done** |
-| Operational runbooks for key retirement | Still needed |
-| Continuous rotation / alias cutover automation | Not in scope |
-| Production cutover | **Not ready** |
+| Gate                                           | Status                              |
+| ---------------------------------------------- | ----------------------------------- |
+| Live multi-key rotation (non-prod)             | **Ready**                           |
+| Automated CI with prior keys                   | Not wired (local env vars required) |
+| Production KMS account / keys                  | **Not done**                        |
+| Operational runbooks for key retirement        | Still needed                        |
+| Continuous rotation / alias cutover automation | Not in scope                        |
+| Production cutover                             | **Not ready**                       |
 
 Honest assessment: non-prod application rotation grace is validated end-to-end. Production readiness still requires prod account isolation, monitoring, retirement runbooks, and a formal go-live — outside 2.1.24.
 

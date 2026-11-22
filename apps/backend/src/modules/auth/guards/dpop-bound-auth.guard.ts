@@ -1,13 +1,11 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { AuthErrors } from '../errors/auth.errors';
 import { HTTP_HEADERS } from '@dcmp/api-contracts';
-import type { TenantRequest, VerifiedAuthContext } from '../../../common/middleware/tenant.middleware';
+import type {
+  TenantRequest,
+  VerifiedAuthContext,
+} from '../../../common/middleware/tenant.middleware';
 
 /**
  * Protected-route guard: Authorization: DPoP <AT> + DPoP proof + PG session check.

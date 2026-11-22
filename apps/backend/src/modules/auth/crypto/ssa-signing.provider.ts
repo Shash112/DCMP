@@ -1,10 +1,6 @@
 import { createHmac, randomUUID } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  GenerateMacCommand,
-  KMSClient,
-  VerifyMacCommand,
-} from '@aws-sdk/client-kms';
+import { GenerateMacCommand, KMSClient, VerifyMacCommand } from '@aws-sdk/client-kms';
 import { assertCryptoTestHooksAllowed } from './crypto-test-hooks';
 import { createKmsClient } from './kms-client.factory';
 import { DcmpKmsConfig, loadKmsConfig } from './kms-config';

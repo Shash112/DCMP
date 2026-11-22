@@ -17,13 +17,13 @@ Phase objectives for real Redis, Nest HTTP/DPoP, refresh concurrency (happy/fail
 
 ## Integration environment (actual)
 
-| Layer | Detail |
-|-------|--------|
-| Branch | `main` |
-| PostgreSQL | **16.10** @ `127.0.0.1:55432` database `dcmp_validation` |
-| Redis | **REAL** @ `127.0.0.1:6379` DB `15` (pre-existing listener; agent did **not** start Docker) |
-| Gateway | NestJS `AppModule` ephemeral HTTP server |
-| Keys | TEST-ONLY local ES256 (access/DPoP) + HS256 SSA |
+| Layer      | Detail                                                                                      |
+| ---------- | ------------------------------------------------------------------------------------------- |
+| Branch     | `main`                                                                                      |
+| PostgreSQL | **16.10** @ `127.0.0.1:55432` database `dcmp_validation`                                    |
+| Redis      | **REAL** @ `127.0.0.1:6379` DB `15` (pre-existing listener; agent did **not** start Docker) |
+| Gateway    | NestJS `AppModule` ephemeral HTTP server                                                    |
+| Keys       | TEST-ONLY local ES256 (access/DPoP) + HS256 SSA                                             |
 
 Preserved: `dcmp_validation`, `dcmp_full_schema_validation`, prior evidence under `evidence/phase-2.1.18/` and `phase-2.1.19/`.
 
@@ -33,19 +33,19 @@ Harness: `apps/backend` → `npm run test:auth:redis`
 Evidence: `infrastructure/database-validation/evidence/phase-2.1.20/`  
 Console: `test_console.log` → **pass 16 / fail 0**
 
-| Area | Result |
-|------|--------|
-| Redis PING / SET NX / TTL | PASSED |
-| HTTP login / JWKS / me / logout | PASSED |
-| DPoP JTI replay (Redis) | PASSED |
-| DPoP wrong method / wrong key / bad signature | PASSED |
-| Org header spoof | PASSED (403) |
-| Redis unavailable fail-closed | PASSED (503) |
-| Concurrent identical refresh | PASSED |
-| Concurrent divergent proofs | PASSED |
-| SSA gateway mint + open | PASSED |
-| SSA replay / revoked grant | PASSED |
-| Health live/ready | PASSED |
+| Area                                          | Result       |
+| --------------------------------------------- | ------------ |
+| Redis PING / SET NX / TTL                     | PASSED       |
+| HTTP login / JWKS / me / logout               | PASSED       |
+| DPoP JTI replay (Redis)                       | PASSED       |
+| DPoP wrong method / wrong key / bad signature | PASSED       |
+| Org header spoof                              | PASSED (403) |
+| Redis unavailable fail-closed                 | PASSED (503) |
+| Concurrent identical refresh                  | PASSED       |
+| Concurrent divergent proofs                   | PASSED       |
+| SSA gateway mint + open                       | PASSED       |
+| SSA replay / revoked grant                    | PASSED       |
+| Health live/ready                             | PASSED       |
 
 ## Redis failure / recovery
 
@@ -66,12 +66,12 @@ Full HTTP path PASSED on Stage-1 validation DB with TEST-ONLY keys. Closes prior
 
 ## Combined DB-SEC matrix (honest)
 
-| Status | Count |
-|--------|------:|
-| PASSED | **493** |
-| NOT_RUN | **61** |
-| NOT_APPLICABLE | **23** |
-| FAILED | **0** |
+| Status         |   Count |
+| -------------- | ------: |
+| PASSED         | **493** |
+| NOT_RUN        |  **61** |
+| NOT_APPLICABLE |  **23** |
+| FAILED         |   **0** |
 
 Baseline 2.1.19: 477 PASSED / 62 NOT_RUN / 23 N/A. Phase 2.1.20 adds 16 newly executed PASSED cases and closes the SSA gateway NOT_RUN; four Phase 2.1.20-specific scenarios remain NOT_RUN (Redis restart, timeout injection, PG mid-txn kill, process interrupt). Matrices: `evidence/phase-2.1.20/db_sec_matrix_2_1_20.{json,csv}` (prior phase evidence not overwritten).
 
