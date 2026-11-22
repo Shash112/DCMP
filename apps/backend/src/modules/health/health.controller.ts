@@ -1,36 +1,32 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Inject, ServiceUnavailableException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { HealthService, HealthCheckResult } from './health.service';
+import { HealthService, HealthCheckResult, ReadinessResult } from './health.service';
 
 @ApiTags('Health')
 @Controller('health')
 export class HealthController {
-  constructor(private readonly healthService: HealthService) {}
+  constructor(@Inject(HealthService) private readonly healthService: HealthService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Backend service health check' })
-  @ApiResponse({
-    status: 200,
-    description: 'Service is operational',
-    schema: {
-      example: {
-        success: true,
-        data: {
-          status: 'ok',
-          service: 'dcmp-backend',
-          version: '0.1.0',
-          timestamp: '2026-11-22T01:00:00.000Z',
-          environment: 'development',
-          uptimeSeconds: 120,
-        },
-        meta: {
-          requestId: 'b4a1b0cd-7cb2-4a0b-a1bb-20e3ad54a2b1',
-          timestamp: '2026-11-22T01:00:00.000Z',
-        },
-      },
-    },
-  })
+  @ApiOperation({ summary: 'Backend service health check (liveness-compatible)' })
+  @ApiResponse({ status: 200, description: 'Service is operational' })
   check(): HealthCheckResult {
     return this.healthService.check();
+  }
+
+  @Get('live')
+  @ApiOperation({ summary: 'Liveness probe — process up only' })
+  live(): HealthCheckResult {
+    return this.healthService.liveness();
+  }
+
+  @Get('ready')
+  @ApiOperation({ summary: 'Readiness probe — PostgreSQL + Redis when required' })
+  async ready(): Promise<ReadinessResult> {
+    const result = await this.healthService.readiness();
+    if (!result.ready) {
+      throw new ServiceUnavailableException(result);
+    }
+    return result;
   }
 }

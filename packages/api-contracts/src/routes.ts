@@ -13,6 +13,8 @@ export const API_ROUTES = {
     REFRESH: `${API_BASE_PATH}/auth/refresh`,
     LOGOUT: `${API_BASE_PATH}/auth/logout`,
     ME: `${API_BASE_PATH}/auth/me`,
+    REVOKE_SESSION: `${API_BASE_PATH}/auth/sessions/revoke`,
+    SESSION_STATUS: `${API_BASE_PATH}/auth/sessions/status`,
     FORGOT_PASSWORD: `${API_BASE_PATH}/auth/forgot-password`,
     RESET_PASSWORD: `${API_BASE_PATH}/auth/reset-password`,
   },

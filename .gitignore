@@ -61,3 +61,18 @@ apps/mobile-app/ios/Podfile.lock
 # Temporary scratch
 scratch/
 scratch_docs/
+
+# Phase 2.1.13 disposable PostgreSQL validation (never commit)
+infrastructure/database-validation/.tools/
+infrastructure/database-validation/data/
+infrastructure/database-validation/evidence/
+infrastructure/database-validation/.env.validation
+infrastructure/database-validation/.venv/
+
+# Local package env (never commit)
+packages/database/.env
+
+
+__pycache__/
+*.pyc
+

@@ -45,9 +45,11 @@ import { PlatformAdminModule } from './modules/platform-admin/platform-admin.mod
             : undefined,
         redact: [
           'req.headers.authorization',
+          'req.headers.dpop',
           'req.headers["x-device-token"]',
           'body.password',
           'body.refreshToken',
+          'body.accessToken',
           'body.activationKey',
         ],
       },

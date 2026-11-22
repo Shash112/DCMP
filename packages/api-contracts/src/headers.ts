@@ -12,4 +12,6 @@ export const HTTP_HEADERS = {
   CLIENT_VERSION: 'x-client-version',
   IDEMPOTENCY_KEY: 'idempotency-key',
   AUTHORIZATION: 'authorization',
+  DPOP: 'dpop',
+  DPOP_NONCE: 'dpop-nonce',
 } as const;

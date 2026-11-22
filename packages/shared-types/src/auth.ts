@@ -22,16 +22,23 @@ export interface JwtPayload {
   roles: string[];
   isPlatformAdmin?: boolean;
   type: 'access' | 'refresh';
+  iss?: string;
+  aud?: string | string[];
+  sid?: string;
   iat?: number;
   exp?: number;
+  nbf?: number;
   jti?: string;
+  /** RFC 9449 confirmation — JWK thumbprint */
+  cnf?: { jkt: string };
 }
 
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
-  tokenType: 'Bearer';
+  /** RFC 9449 — sender-constrained access tokens use DPoP (not Bearer) */
+  tokenType: 'DPoP';
 }
 
 export interface LoginResponseData {

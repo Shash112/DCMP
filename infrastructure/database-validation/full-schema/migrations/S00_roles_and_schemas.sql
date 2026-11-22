@@ -1,0 +1,58 @@
+-- Phase 2.1.18 / S00 — roles & schemas (full-schema validation DB)
+\set ON_ERROR_STOP on
+
+DO $$ BEGIN
+  CREATE ROLE dcmp_migrator NOINHERIT LOGIN PASSWORD 'dcmp_val_migrator';
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE ROLE dcmp_app NOINHERIT LOGIN PASSWORD 'dcmp_val_app'
+    NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS NOREPLICATION;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE ROLE dcmp_platform_admin NOINHERIT LOGIN PASSWORD 'dcmp_val_padmin'
+    NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS NOREPLICATION;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE ROLE dcmp_audit_writer NOINHERIT LOGIN PASSWORD 'dcmp_val_audit'
+    NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS NOREPLICATION;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE ROLE dcmp_sec_definer NOLOGIN
+    NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS NOREPLICATION;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE ROLE dcmp_cleanup NOINHERIT LOGIN PASSWORD 'dcmp_val_cleanup'
+    NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS NOREPLICATION;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  REVOKE dcmp_sec_definer FROM dcmp_app;
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  REVOKE dcmp_sec_definer FROM dcmp_platform_admin;
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  REVOKE dcmp_sec_definer FROM dcmp_audit_writer;
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN
+  REVOKE dcmp_sec_definer FROM dcmp_cleanup;
+EXCEPTION WHEN OTHERS THEN NULL; END $$;
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE SCHEMA IF NOT EXISTS dcmp_security AUTHORIZATION dcmp_sec_definer;
+REVOKE ALL ON SCHEMA dcmp_security FROM PUBLIC;
+GRANT USAGE ON SCHEMA dcmp_security TO dcmp_sec_definer;
+GRANT USAGE ON SCHEMA dcmp_security TO dcmp_platform_admin;
+GRANT USAGE ON SCHEMA dcmp_security TO dcmp_app;
+
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+GRANT USAGE ON SCHEMA public TO dcmp_app, dcmp_platform_admin, dcmp_audit_writer, dcmp_cleanup, dcmp_migrator;
+GRANT CREATE ON SCHEMA public TO dcmp_migrator;
+
+\echo NOTICE: S00_roles_and_schemas OK

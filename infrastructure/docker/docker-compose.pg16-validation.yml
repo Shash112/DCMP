@@ -1,0 +1,31 @@
+# DCMP Phase 2.1.13 — Disposable PostgreSQL 16 validation (Docker path)
+# Prefer this when Docker Desktop is available. Does NOT reuse DCMP development volumes.
+#
+# Usage:
+#   docker compose -f infrastructure/docker/docker-compose.pg16-validation.yml up -d
+#   docker compose -f infrastructure/docker/docker-compose.pg16-validation.yml down -v
+#
+# Local-only bind. Test credentials only — never production secrets.
+
+services:
+  dcmp-pg16-validation:
+    image: postgres:16.10-alpine
+    container_name: dcmp-pg16-validation
+    environment:
+      POSTGRES_USER: dcmp_val_super
+      POSTGRES_PASSWORD: dcmp_val_only_not_prod
+      POSTGRES_DB: dcmp_validation
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - dcmp_pg16_validation_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dcmp_val_super -d dcmp_validation"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: "no"
+
+volumes:
+  dcmp_pg16_validation_data:
+    name: dcmp_pg16_validation_data
