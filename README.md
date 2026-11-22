@@ -146,6 +146,7 @@ All design decisions and architectural specifications are documented under `doc/
 - [Architecture Gaps & Open Decisions](file:///doc/ARCHITECTURE_GAPS_AND_OPEN_DECISIONS.md)
 - [Repository Structure Guide](file:///doc/REPOSITORY_STRUCTURE.md)
 - [Local Development Setup Guide](file:///doc/LOCAL_DEVELOPMENT_SETUP.md)
+- [Local Development Setup & Validation Guide](file:///doc/LOCAL_DEVELOPMENT_SETUP_AND_VALIDATION.md)
 
 ---
 
